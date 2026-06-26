@@ -98,13 +98,65 @@ body {
     color: #555;
 }
 
-/* 12分類橫向滾動 */
+/* --- 找到 .category-container 並整段替換 --- */
 .category-container {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
-    padding: 4px 2px;
+    padding: 6px 2px;
     margin-bottom: 6px;
+    height: 42px; /* 🌟 關鍵：強迫固定高度，絕對不准被擠壓 */
+    align-items: center;
+    flex-shrink: 0; /* 🌟 關鍵：防止 flex 把它壓扁 */
+}
+.category-container::-webkit-scrollbar { display: none; } 
+
+.cat-btn {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px; /* 稍微放大一點點字體 */
+    cursor: pointer;
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    color: #444;
+    line-height: 1.2;
+}
+.cat-btn.selected {
+    background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+    color: white;
+    border-color: transparent;
+}
+
+/* --- 找到 .keyboard 和 .key 並整段替換（縮小按鈕高度） --- */
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    flex-shrink: 0; /* 防止鍵盤自己變形 */
+}
+.key {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 8px 0; /* 🌟 減少上下 padding（原本是 10px），讓鍵盤變矮，留空間給分類 */
+    text-align: center;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    font-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px; /* 🌟 固定的按鈕高度 */
+}
+.key:active { background: rgba(255, 192, 203, 0.5); }
+.backspace { color: #ff69b4; font-size: 18px; }
+.submit-btn {
+    background: linear-gradient(135deg, #ff99cc, #ff6699);
+    color: white;
+    font-size: 14px;
+    border: none;
 }
 .category-container::-webkit-scrollbar { display: none; } 
 .cat-btn {
