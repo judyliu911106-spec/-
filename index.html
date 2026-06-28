@@ -1,55 +1,180 @@
-// 新增一個輕微震動的輔助函式
-function triggerVibration(type = "light") {
-    if (navigator.vibrate) {
-        if (type === "light") {
-            navigator.vibrate(15); // 短促輕微震動 (按鍵用)
-        } else if (type === "success") {
-            navigator.vibrate([40, 40, 40]); // 連續快震 (成功用)
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>夢幻粉紅記帳</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="app-shell">
+        <div class="glass-panel text-center">
+            <div class="bubble-decor">🌸</div>
+            <h2 class="panel-title">本月累積花費</h2>
+            <div class="total-amount">NT$ <span id="month-total">0</span></div>
+        </div>
+
+        <div class="glass-panel">
+            <h3 class="panel-sub-title">🎀 預算餘額分配</h3>
+            <div class="budget-grid">
+                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" onchange="updateBudget('save', this.value)"></div>
+                <div class="budget-item"><span>可花費</span><input type="number" id="bg-spend" onchange="updateBudget('spend', this.value)"></div>
+                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" onchange="updateBudget('makeup', this.value)"></div>
+                <div class="budget-item"><span>運動</span><input type="number" id="bg-sport" onchange="updateBudget('sport', this.value)"></div>
+                <div class="budget-item"><span>保險</span><input type="number" id="bg-insurance" onchange="updateBudget('insurance', this.value)"></div>
+            </div>
+        </div>
+
+        <div class="glass-panel keep-panel">
+            <div class="input-row">
+                <input type="date" id="tx-date">
+                <input type="text" id="tx-item" placeholder="項目內容 (選填)">
+            </div>
+            
+            <div class="category-container" id="cat-container">
+                <div class="cat-btn" onclick="selectCat(this, '主食')">🍱 主食</div>
+                <div class="cat-btn" onclick="selectCat(this, '點心')">🍰 點心</div>
+                <div class="cat-btn" onclick="selectCat(this, '住宿')">🎀 住宿</div>
+                <div class="cat-btn" onclick="selectCat(this, '交通')">🚗 交通</div>
+                <div class="cat-btn" onclick="selectCat(this, '購物')">🛍️ 購物</div>
+                <div class="cat-btn" onclick="selectCat(this, '治裝')">👗 治裝</div>
+                <div class="cat-btn" onclick="selectCat(this, '電話及會員')">📱 電話會員</div>
+                <div class="cat-btn" onclick="selectCat(this, '醫療')">🏥 醫療</div>
+                <div class="cat-btn" onclick="selectCat(this, '保養美體')">💅 保養美體</div>
+                <div class="cat-btn" onclick="selectCat(this, '儲值及娛樂')">🎮 娛樂儲值</div>
+                <div class="cat-btn" onclick="selectCat(this, '狗勾')">🐶 狗勾</div>
+                <div class="cat-btn" onclick="selectCat(this, '其他')">✨ 其他</div>
+            </div>
+
+            <div class="amount-display">
+                已選: <span id="selected-cat-text" style="color:#ff1493;">未選擇</span> | 
+                金額: <span style="color:#ff1493; font-weight:bold;">$</span><span id="tx-amount" style="color:#ff1493; font-weight:bold;">0</span>
+            </div>
+            
+            <div class="keyboard">
+                <div class="key" onclick="pressKey('1')">1</div><div class="key" onclick="pressKey('2')">2</div><div class="key" onclick="pressKey('3')">3</div>
+                <div class="key" onclick="pressKey('4')">4</div><div class="key" onclick="pressKey('5')">5</div><div class="key" onclick="pressKey('6')">6</div>
+                <div class="key" onclick="pressKey('7')">7</div><div class="key" onclick="pressKey('8')">8</div><div class="key" onclick="pressKey('9')">9</div>
+                <div class="key backspace" onclick="pressKey('C')">⌫</div><div class="key" onclick="pressKey('0')">0</div>
+                <div class="key submit-btn" onclick="submitRecord()">送出✨</div>
+            </div>
+        </div>
+        
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item active">記帳首頁</a>
+            <a href="details.html" class="nav-item">明細歷史</a>
+        </div>
+    </div>
+
+    <script>
+        // 你專屬的 Google Apps Script 後端網址
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
+
+        let currentAmount = "0";
+        let chosenCategory = "";
+
+        // 手機輕微震動回饋函式
+        function triggerVibration(type = "light") {
+            if (navigator.vibrate) {
+                if (type === "light") {
+                    navigator.vibrate(15); // 短促輕微震動 (日常點擊)
+                } else if (type === "success") {
+                    navigator.vibrate([40, 40, 40]); // 連續快震 (成功送出)
+                }
+            }
         }
-    }
-}
 
-// 修改按鍵點擊函式，加入震動
-function pressKey(key) {
-    triggerVibration("light"); // ✨ 觸發按鍵視覺/觸覺回饋
-    if (key === 'C') {
-        currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0";
-    } else {
-        currentAmount = currentAmount === "0" ? key : currentAmount + key;
-    }
-    document.getElementById('tx-amount').innerText = currentAmount;
-}
+        // 頁面載入初始化
+        window.addEventListener('load', () => {
+            document.getElementById('tx-date').valueAsDate = new Date();
+            
+            // 優先讀取瀏覽器 LocalStorage，達到「秒出數字」的流暢感
+            const fields = ['save', 'spend', 'makeup', 'sport', 'insurance'];
+            fields.forEach(f => {
+                if(localStorage.getItem('budget_'+f)) document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f);
+            });
+            
+            // 從 Google Sheets 同步最新累積總額與最新的雲端預算數字
+            fetch(`${GAS_URL}?action=getData`)
+                .then(res => res.json())
+                .then(data => {
+                    // 計算並填入當月累積總金額
+                    let total = data.records.reduce((sum, r) => sum + r.amount, 0);
+                    document.getElementById('month-total').innerText = total.toLocaleString();
+                    
+                    // 同步雲端預算到本機輸入框與快取
+                    fields.forEach(f => {
+                        if(data.budgets[f]) {
+                            document.getElementById('bg-'+f).value = data.budgets[f];
+                            localStorage.setItem('budget_'+f, data.budgets[f]);
+                        }
+                    });
+                }).catch(err => console.error("讀取 Google 資料失敗：", err));
+        });
 
-// 修改選擇分類函式，加入震動
-function selectCat(element, cat) {
-    triggerVibration("light"); // ✨ 觸發分類按鍵回饋
-    chosenCategory = cat;
-    document.getElementById('selected-cat-text').innerText = cat;
-    
-    document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected'));
-    element.classList.add('selected');
-}
+        // 選擇記帳分類
+        function selectCat(element, cat) {
+            triggerVibration("light"); // 觸發震動回饋
+            chosenCategory = cat;
+            document.getElementById('selected-cat-text').innerText = cat;
+            
+            // 切換選中高亮視覺效果（會套用 style.css 裡的漸層粉紅）
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+        }
 
-// 修改送出成功的提示
-function submitRecord() {
-    if (!chosenCategory) { alert("請先選擇一個可愛的分類唷！🌸"); return; }
-    if (currentAmount === "0") { alert("請輸入金額！"); return; }
+        // 點擊虛擬鍵盤
+        function pressKey(key) {
+            triggerVibration("light"); // 觸發震動回饋
+            if (key === 'C') {
+                currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0";
+            } else {
+                currentAmount = currentAmount === "0" ? key : currentAmount + key;
+            }
+            document.getElementById('tx-amount').innerText = currentAmount;
+        }
 
-    const payload = {
-        date: document.getElementById('tx-date').value,
-        category: chosenCategory,
+        // 當修改預算金額時，即時儲存至本機並同步至 Google Sheets
+        function updateBudget(cat, val) {
+            localStorage.setItem('budget_' + cat, val);
+            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${val}`);
+        }
+
+        // 送出資料到 Google Sheets
+        function submitRecord() {
+            if (!chosenCategory) { 
+                alert("請先選擇一個可愛的分類唷！🌸"); 
+                return; 
+            }
+            if (currentAmount === "0") { 
+                alert("請輸入金額！"); 
+                return; 
+            }
+
+            const payload = {
+                date: document.getElementById('tx-date').value,
+                category: chosenCategory,
                 item: document.getElementById('tx-item').value,
                 amount: currentAmount
             };
 
+            // 顯示按鈕點擊動態
             fetch(GAS_URL, {
                 method: "POST",
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(res => {
-                triggerVibration("success"); // ✨ 成功時發出歡樂的連震回饋！
-                alert(res.message);
-                location.reload();
+                triggerVibration("success"); // 成功時發出連續快震回饋
+                alert(res.message); // 跳出「記帳成功！🌸」提示
+                location.reload();   // 重新整理，更新最上方的累積花費
+            }).catch(err => {
+                alert("傳送失敗，請檢查網路或GAS設定唷！");
+                console.error(err);
             });
         }
+    </script>
+</body>
+</html>
