@@ -4,13 +4,13 @@
     margin: 0;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* 更換為更優雅、圓潤的系統字型 */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Helvetica Neue", sans-serif;
 }
 
 body {
     background: linear-gradient(135deg, #FFE4E1 0%, #FFB6C1 50%, #FFC0CB 100%);
     background-attachment: fixed;
-    /* 修正手機瀏覽器網址列造成的高度吃字問題 */
     height: 100vh;
     height: -webkit-fill-available; 
     width: 100vw;
@@ -28,30 +28,30 @@ body {
     height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
-    /* 增加底部安全區留白，防止被瀏覽器底部列擋住 */
     padding: 12px 12px calc(54px + env(safe-area-inset-bottom)) 12px; 
     position: relative;
 }
 
-/* 夢幻液態玻璃卡片（微調間距縮小一點點，挪出空間給鍵盤） */
+/* 夢幻液態玻璃卡片 */
 .glass-panel {
     background: rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 20px;
-    padding: 12px;
-    margin-bottom: 8px; /* 稍微縮小外距 */
+    padding: 14px;
+    margin-bottom: 8px;
     box-shadow: 0 8px 32px 0 rgba(255, 182, 193, 0.25);
 }
 
 .text-center { text-align: center; }
-.bubble-decor { font-size: 18px; margin-bottom: 2px; animation: float 3s ease-in-out infinite; }
-.panel-title { font-size: 13px; color: #7a6e71; font-weight: 600; letter-spacing: 1px; }
-.total-amount { font-size: 30px; font-weight: 800; color: #ff69b4; text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8); margin-top: 2px; }
-.panel-sub-title { font-size: 13px; color: #666; margin-bottom: 8px; font-weight: bold; }
+.bubble-decor { font-size: 22px; margin-bottom: 2px; animation: float 3s ease-in-out infinite; }
+.panel-title { font-size: 15px; color: #7a6e71; font-weight: 600; letter-spacing: 1px; }
+/* 大幅放大總花費字體 */
+.total-amount { font-size: 38px; font-weight: 900; color: #ff69b4; text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.8); margin-top: 2px; }
+.panel-sub-title { font-size: 14px; color: #666; margin-bottom: 8px; font-weight: bold; }
 
-/* 預算分配區排版 */
+/* 預算分配區排版 (放大文字) */
 .budget-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -62,20 +62,20 @@ body {
     justify-content: space-between;
     align-items: center;
     background: rgba(255, 255, 255, 0.3);
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.4);
 }
-.budget-item span { font-size: 12px; color: #555; font-weight: 500; }
+.budget-item span { font-size: 14px; color: #555; font-weight: bold; } /* 放大變粗 */
 .budget-item input {
-    width: 65px;
+    width: 75px;
     background: transparent;
     border: none;
     outline: none;
     text-align: right;
-    font-weight: bold;
+    font-weight: 800; /* 加粗數字 */
     color: #ff1493;
-    font-size: 13px;
+    font-size: 15px; /* 放大數字 */
 }
 
 /* 記帳核心區域 */
@@ -84,133 +84,110 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 0; /* 允許容器在 flex 中縮小 */
+    min-height: 0;
 }
 .input-row { display: flex; gap: 6px; margin-bottom: 6px; }
 .input-row input {
     flex: 1;
     border: 1px solid rgba(255, 192, 203, 0.4);
-    padding: 8px;
+    padding: 10px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.6);
-    font-size: 13px;
+    font-size: 14px;
     outline: none;
-    color: #555;
+    color: #444;
 }
 
-/* --- 找到 .category-container 並整段替換 --- */
+/* 12分類滾動區美化 (讓它不空曠) */
 .category-container {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     overflow-x: auto;
-    padding: 6px 2px;
+    padding: 8px 4px;
     margin-bottom: 6px;
-    height: 42px; /* 🌟 關鍵：強迫固定高度，絕對不准被擠壓 */
+    height: 48px; /* 稍微拉高高度 */
     align-items: center;
-    flex-shrink: 0; /* 🌟 關鍵：防止 flex 把它壓扁 */
+    flex-shrink: 0;
 }
 .category-container::-webkit-scrollbar { display: none; } 
 
 .cat-btn {
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 13px; /* 稍微放大一點點字體 */
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 16px; /* 加大按鈕本體 */
+    border-radius: 18px;
+    font-size: 14px; /* 放大字體 */
+    font-weight: 600;
     cursor: pointer;
-    border: 1px solid rgba(255, 182, 193, 0.4);
+    border: 1px solid rgba(255, 182, 193, 0.5);
     color: #444;
-    line-height: 1.2;
+    box-shadow: 0 4px 10px rgba(255, 182, 193, 0.15); /* 增加泡泡感立體陰影 */
+    transition: all 0.1s ease;
+}
+/* 按下按鈕時的動態視覺回饋感 🌟 */
+.cat-btn:active {
+    transform: scale(0.92);
+    background: rgba(255, 192, 203, 0.4);
 }
 .cat-btn.selected {
-    background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-    color: white;
-    border-color: transparent;
-}
-
-/* --- 找到 .keyboard 和 .key 並整段替換（縮小按鈕高度） --- */
-.keyboard {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    flex-shrink: 0; /* 防止鍵盤自己變形 */
-}
-.key {
-    background: rgba(255, 255, 255, 0.7);
-    padding: 8px 0; /* 🌟 減少上下 padding（原本是 10px），讓鍵盤變矮，留空間給分類 */
-    text-align: center;
-    border-radius: 12px;
-    font-weight: bold;
-    color: #555;
-    cursor: pointer;
-    font-size: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px; /* 🌟 固定的按鈕高度 */
-}
-.key:active { background: rgba(255, 192, 203, 0.5); }
-.backspace { color: #ff69b4; font-size: 18px; }
-.submit-btn {
     background: linear-gradient(135deg, #ff99cc, #ff6699);
     color: white;
-    font-size: 14px;
-    border: none;
-}
-.category-container::-webkit-scrollbar { display: none; } 
-.cat-btn {
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    cursor: pointer;
-    border: 1px solid rgba(255, 182, 193, 0.4);
-    color: #444;
-}
-.cat-btn.selected {
-    background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-    color: white;
     border-color: transparent;
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
 }
 
+/* 顯示文字放大 */
 .amount-display {
-    font-size: 12px;
-    font-weight: 600;
-    color: #666;
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
     text-align: right;
     padding: 2px;
     margin-bottom: 4px;
 }
 
-/* 虛擬數字鍵盤（微調高度，確保不溢出） */
+/* 虛擬數字鍵盤優化 */
 .keyboard {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 .key {
-    background: rgba(255, 255, 255, 0.7);
-    padding: 10px; /* 縮小按鈕內襯，挪出高度 */
+    background: rgba(255, 255, 255, 0.75);
     text-align: center;
-    border-radius: 12px;
-    font-weight: bold;
-    color: #555;
+    border-radius: 14px;
+    font-weight: 800; /* 數字加粗 */
+    color: #444;
     cursor: pointer;
-    font-size: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-.key:active { background: rgba(255, 192, 203, 0.5); }
-.backspace { color: #ff69b4; font-size: 18px; }
-.submit-btn {
-    background: linear-gradient(135deg, #ff99cc, #ff6699);
-    color: white;
-    font-size: 14px;
+    font-size: 20px; /* 放大鍵盤數字 */
+    border: 1px solid rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 42px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.02);
+    transition: all 0.05s ease;
+}
+/* 數字鍵按下的回饋感 🌟 */
+.key:active { 
+    transform: scale(0.92);
+    background: rgba(255, 182, 193, 0.6); 
+}
+.backspace { color: #ff69b4; font-size: 22px; }
+
+/* 送出鈕按下的回饋感 🌟 */
+.submit-btn {
+    background: linear-gradient(135deg, #ff99cc, #ff6699);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
     border: none;
+    box-shadow: 0 4px 10px rgba(255, 102, 153, 0.2);
+}
+.submit-btn:active {
+    transform: scale(0.95);
+    filter: brightness(0.9);
 }
 
 /* 明細頁歷史列表 */
@@ -228,20 +205,20 @@ body {
 .filter-box { display: flex; gap: 6px; margin-bottom: 8px; }
 .filter-box input, .filter-box select {
     flex: 1;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid rgba(255, 192, 203, 0.4);
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.6);
-    font-size: 13px;
+    font-size: 14px;
 }
 
-/* 底部導覽列固定修正 */
+/* 底部導覽列 */
 .nav-bar {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(50px + env(safe-area-inset-bottom)); /* 考慮 iPhone 底部橫條安全區 */
+    height: calc(52px + env(safe-area-inset-bottom)); 
     padding-bottom: env(safe-area-inset-bottom);
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(15px);
@@ -256,7 +233,7 @@ body {
     justify-content: center;
     text-decoration: none;
     color: #a09094;
-    font-size: 12px;
+    font-size: 14px; /* 導覽列字體放大 */
     font-weight: bold;
 }
 .nav-item.active { color: #ff1493; position: relative; }
@@ -264,7 +241,7 @@ body {
     content: '🌸';
     position: absolute;
     top: 4px;
-    font-size: 7px;
+    font-size: 8px;
 }
 
 @keyframes float {
