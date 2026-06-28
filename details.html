@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>花費明細</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -27,7 +27,7 @@
         </div>
 
         <div class="scrollable-content" id="records-list">
-            <p style="text-align:center; color:#fff;">正在從 Google 讀取明細中...🌸</p>
+            <p style="text-align:center; color:#7a6e71; padding-top: 20px;">正在從 Google 讀取明細中...🌸</p>
         </div>
 
         <div class="nav-bar">
@@ -41,13 +41,18 @@
         let allRecords = [];
 
         window.addEventListener('load', () => {
+            loadData();
+        });
+
+        function loadData() {
+            document.getElementById('records-list').innerHTML = `<p style="text-align:center; color:#7a6e71; padding-top: 20px;">正在更新資料中...🌸</p>`;
             fetch(`${GAS_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
                     allRecords = data.records;
-                    applyFilter(); // 預設顯示全部或特定規則
+                    applyFilter();
                 });
-        });
+        }
 
         function applyFilter() {
             const dateVal = document.getElementById('filter-date').value;
@@ -61,31 +66,56 @@
                 return matchDate && matchCat;
             });
 
-            // 計算篩選總額
             let sum = filtered.reduce((total, r) => total + r.amount, 0);
             document.getElementById('filter-total').innerText = sum.toLocaleString();
 
             if(filtered.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#fff; padding:20px;">沒有找到相關帳目唷 ✨</p>`;
+                container.innerHTML = `<p style="text-align:center; color:#7a6e71; padding:20px;">沒有找到帳目唷 ✨</p>`;
                 return;
             }
 
-            // 渲染列表 (採用漂亮的液態小字卡)
-            filtered.forEach(r => {
+            // 由新到舊排序歷史紀錄
+            filtered.reverse().forEach(r => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'record-item glass-panel';
+                itemDiv.className = 'record-item';
+                itemDiv.style.display = 'flex';
+                itemDiv.style.justifyContent = 'space-between';
+                itemDiv.style.alignItems = 'center';
+                itemDiv.style.boxShadow = '0 4px 12px rgba(255,182,193,0.15)';
+                itemDiv.style.border = '1px solid rgba(255,255,255,0.5)';
+                
                 itemDiv.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; width:100%;">
-                        <div>
-                            <span style="font-weight:bold; color:#d2691e;">[${r.category}]</span> 
-                            <span style="color:#555;">${r.item || '無項目描述'}</span>
-                            <div style="font-size:12px; color:#888; margin-top:4px;">${r.date}</div>
-                        </div>
-                        <div style="font-weight:bold; color:#ff1493; font-size:18px;">$${r.amount}</div>
+                    <div style="flex: 1;">
+                        <span style="font-weight:600; color:#ff4500; font-size:14px;">${r.category}</span> 
+                        <span style="color:#555; margin-left:6px; font-size:14px;">${r.item || '(無項目)'}</span>
+                        <div style="font-size:11px; color:#999; margin-top:4px;">${r.date}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-weight:700; color:#ff1493; font-size:17px;">$${r.amount.toLocaleString()}</div>
+                        <button class="delete-btn" onclick="deleteItem(${r.rowId}, '${r.date}', ${r.amount})">🗑️</button>
                     </div>
                 `;
                 container.appendChild(itemDiv);
             });
+        }
+
+        // 刪除功能
+        function deleteItem(rowId, date, amount) {
+            if (confirm(`確定要刪除這筆 $${amount} 的紀錄嗎？🌸`)) {
+                fetch(`${GAS_URL}?action=deleteRecord&rowId=${rowId}&date=${date}&amount=${amount}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.status === "success") {
+                            alert("已成功刪除該筆帳目！✨");
+                            loadData(); // 重新載入最新資料
+                        } else {
+                            alert("刪除失敗：" + res.message);
+                        }
+                    }).catch(err => {
+                        alert("連線失敗，請稍後再試！");
+                        console.error(err);
+                    });
+            }
         }
     </script>
 </body>
