@@ -69,65 +69,54 @@
     </div>
 
     <script>
-        // 你專屬的 Google Apps Script 後端網址
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
 
         let currentAmount = "0";
         let chosenCategory = "";
 
-        // 手機輕微震動回饋函式
+        // 手機輕微震動回饋
         function triggerVibration(type = "light") {
             if (navigator.vibrate) {
                 if (type === "light") {
-                    navigator.vibrate(15); // 短促輕微震動 (日常點擊)
+                    navigator.vibrate(15); 
                 } else if (type === "success") {
-                    navigator.vibrate([40, 40, 40]); // 連續快震 (成功送出)
+                    navigator.vibrate([40, 40, 40]); 
                 }
             }
         }
 
-        // 頁面載入初始化
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
-            
-            // 優先讀取瀏覽器 LocalStorage，達到「秒出數字」的流暢感
             const fields = ['save', 'spend', 'makeup', 'sport', 'insurance'];
             fields.forEach(f => {
                 if(localStorage.getItem('budget_'+f)) document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f);
             });
             
-            // 從 Google Sheets 同步最新累積總額與最新的雲端預算數字
             fetch(`${GAS_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
-                    // 計算並填入當月累積總金額
                     let total = data.records.reduce((sum, r) => sum + r.amount, 0);
                     document.getElementById('month-total').innerText = total.toLocaleString();
-                    
-                    // 同步雲端預算到本機輸入框與快取
                     fields.forEach(f => {
                         if(data.budgets[f]) {
                             document.getElementById('bg-'+f).value = data.budgets[f];
                             localStorage.setItem('budget_'+f, data.budgets[f]);
                         }
                     });
-                }).catch(err => console.error("讀取 Google 資料失敗：", err));
+                }).catch(err => console.error("讀取失敗:", err));
         });
 
-        // 選擇記帳分類
         function selectCat(element, cat) {
-            triggerVibration("light"); // 觸發震動回饋
+            triggerVibration("light"); 
             chosenCategory = cat;
             document.getElementById('selected-cat-text').innerText = cat;
             
-            // 切換選中高亮視覺效果（會套用 style.css 裡的漸層粉紅）
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
         }
 
-        // 點擊虛擬鍵盤
         function pressKey(key) {
-            triggerVibration("light"); // 觸發震動回饋
+            triggerVibration("light"); 
             if (key === 'C') {
                 currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0";
             } else {
@@ -136,22 +125,14 @@
             document.getElementById('tx-amount').innerText = currentAmount;
         }
 
-        // 當修改預算金額時，即時儲存至本機並同步至 Google Sheets
         function updateBudget(cat, val) {
             localStorage.setItem('budget_' + cat, val);
             fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${val}`);
         }
 
-        // 送出資料到 Google Sheets
         function submitRecord() {
-            if (!chosenCategory) { 
-                alert("請先選擇一個可愛的分類唷！🌸"); 
-                return; 
-            }
-            if (currentAmount === "0") { 
-                alert("請輸入金額！"); 
-                return; 
-            }
+            if (!chosenCategory) { alert("請先選擇一個可愛的分類唷！🌸"); return; }
+            if (currentAmount === "0") { alert("請輸入金額！"); return; }
 
             const payload = {
                 date: document.getElementById('tx-date').value,
@@ -160,19 +141,15 @@
                 amount: currentAmount
             };
 
-            // 顯示按鈕點擊動態
             fetch(GAS_URL, {
                 method: "POST",
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(res => {
-                triggerVibration("success"); // 成功時發出連續快震回饋
-                alert(res.message); // 跳出「記帳成功！🌸」提示
-                location.reload();   // 重新整理，更新最上方的累積花費
-            }).catch(err => {
-                alert("傳送失敗，請檢查網路或GAS設定唷！");
-                console.error(err);
+                triggerVibration("success"); 
+                alert(res.message);
+                location.reload();
             });
         }
     </script>
