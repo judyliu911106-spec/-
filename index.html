@@ -7,19 +7,42 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        /* 🌟 內建核心基本樣式防護，防止 style.css 沒載入時完全垮掉 */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffe4e1; margin: 0; padding: 10px; box-sizing: border-box; }
+        .app-shell { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); border-radius: 20px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .text-center { text-align: center; }
+        .total-amount { font-size: 28px; font-weight: bold; color: #ff1493; margin-top: 5px; }
+        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 10px; border-radius: 10px; }
+        .budget-item input { width: 70px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-row input { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #ffb6c1; }
+        .category-container { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .cat-btn { padding: 8px 14px; background: #fff; border-radius: 15px; cursor: pointer; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; transform: scale(1.05); }
+        .amount-display { margin: 10px 0; text-align: center; font-size: 14px; background: #fff; padding: 6px; border-radius: 10px; }
+        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .key { background: #fff; padding: 15px; text-align: center; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .key:active { background: #ffebf0; }
+        .submit-btn { background: #ffb6c1; color: white; grid-column: span 1; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ffedf0; z-index: 1000; }
+        .nav-item { text-decoration: none; color: #888; font-size: 14px; width: 50%; text-align: center; line-height: 50px; }
+        .nav-item.active { color: #ff1493; font-weight: bold; background: #fff0f5; }
+    </style>
 </head>
 <body>
     <div class="app-shell">
         <div class="glass-panel text-center">
-            <div class="bubble-decor">🌸</div>
-            <h2 class="panel-title">本月累積花費</h2>
+            <div style="font-size:20px;">🌸</div>
+            <div style="font-size:14px; color:#666; font-weight:bold;">本月累積花費</div>
             <div class="total-amount">NT$ <span id="month-total">0</span></div>
         </div>
 
         <div class="glass-panel">
-            <h3 class="panel-sub-title">🎀 預算餘額分配</h3>
+            <div style="font-size:14px; font-weight:bold; margin-bottom:8px; color:#555;">🎀 預算餘額分配</div>
             <div class="budget-grid">
-                <div class="budget-item"><span>月薪</span><input type="number" id="bg-insurance" onchange="updateBudget('insurance', this.value)"></div>
                 <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" onchange="updateBudget('save', this.value)"></div>
                 <div class="budget-item"><span>可花費</span><input type="number" id="bg-spend" onchange="updateBudget('spend', this.value)"></div>
                 <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" onchange="updateBudget('makeup', this.value)"></div>
@@ -28,7 +51,7 @@
             </div>
         </div>
 
-        <div class="glass-panel keep-panel">
+        <div class="glass-panel">
             <div class="input-row">
                 <input type="date" id="tx-date">
                 <input type="text" id="tx-item" placeholder="項目內容 (選填)">
@@ -50,7 +73,7 @@
             </div>
 
             <div class="amount-display">
-                已選: <span id="selected-cat-text" style="color:#ff1493;">未選擇</span> | 
+                已選: <span id="selected-cat-text" style="color:#ff1493; font-weight:bold;">未選擇</span> | 
                 金額: <span style="color:#ff1493; font-weight:bold;">$</span><span id="tx-amount" style="color:#ff1493; font-weight:bold;">0</span>
             </div>
             
@@ -58,7 +81,7 @@
                 <div class="key" onclick="pressKey('1')">1</div><div class="key" onclick="pressKey('2')">2</div><div class="key" onclick="pressKey('3')">3</div>
                 <div class="key" onclick="pressKey('4')">4</div><div class="key" onclick="pressKey('5')">5</div><div class="key" onclick="pressKey('6')">6</div>
                 <div class="key" onclick="pressKey('7')">7</div><div class="key" onclick="pressKey('8')">8</div><div class="key" onclick="pressKey('9')">9</div>
-                <div class="key backspace" onclick="pressKey('C')">⌫</div><div class="key" onclick="pressKey('0')">0</div>
+                <div class="key" style="color:#cc0000;" onclick="pressKey('C')">⌫</div><div class="key" onclick="pressKey('0')">0</div>
                 <div class="key submit-btn" onclick="submitRecord()">送出✨</div>
             </div>
         </div>
@@ -70,66 +93,74 @@
     </div>
 
     <script>
-        // 你的 Google Apps Script 後端部署網址
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
 
         let currentAmount = "0";
         let chosenCategory = "";
 
-        // 超級安全防護震動函式：哪怕瀏覽器完全不支援、死鎖，也絕不影響點擊事件的執行
+        // 安全防護震動
         function triggerVibration(type = "light") {
             try {
                 if (window.navigator && window.navigator.vibrate) {
-                    if (type === "light") {
-                        window.navigator.vibrate(15); 
-                    } else if (type === "success") {
-                        window.navigator.vibrate([40, 40, 40]); 
-                    }
+                    if (type === "light") window.navigator.vibrate(15); 
+                    else if (type === "success") window.navigator.vibrate([40, 40, 40]); 
                 }
-            } catch (e) {
-                console.log("當前環境不支援震動 API");
-            }
+            } catch (e) {}
         }
 
-        // 初始化載入
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
-            
-            // 秒出本地暫存數字
             const fields = ['save', 'spend', 'makeup', 'sport', 'insurance'];
             fields.forEach(f => {
-                if(localStorage.getItem('budget_'+f)) {
-                    document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f);
-                }
+                if(localStorage.getItem('budget_'+f)) document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f);
             });
             
-            // 從 GAS 抓最新統計
             fetch(`${GAS_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
-                    let total = data.records.reduce((sum, r) => sum + r.amount, 0);
+                    // 🌟 核心修正：精準抓出今天手機系統的 "yyyy-MM" (例如："2026-07")
+                    let today = new Date();
+                    let y = today.getFullYear();
+                    let m = String(today.getMonth() + 1).padStart(2, '0');
+                    let currentYearMonth = `${y}-${m}`;
+
+                    let total = 0;
+                    if (data && data.records) {
+                        total = data.records.reduce((sum, r) => {
+                            if (r.date) {
+                                // 🌟 統一將斜線換成橫槓，並直接切出前 7 個字（yyyy-MM）進行純文字死比對
+                                let formattedDate = r.date.toString().replace(/\//g, '-');
+                                let rowYearMonth = formattedDate.substring(0, 7);
+                                
+                                if (rowYearMonth === currentYearMonth) {
+                                    let amt = Number(r.amount);
+                                    return sum + (isNaN(amt) ? 0 : amt);
+                                }
+                            }
+                            return sum;
+                        }, 0);
+                    }
                     document.getElementById('month-total').innerText = total.toLocaleString();
                     
-                    fields.forEach(f => {
-                        if(data.budgets && data.budgets[f]) {
-                            document.getElementById('bg-'+f).value = data.budgets[f];
-                            localStorage.setItem('budget_'+f, data.budgets[f]);
-                        }
-                    });
+                    if (data && data.budgets) {
+                        fields.forEach(f => {
+                            if(data.budgets[f] !== undefined) {
+                                document.getElementById('bg-'+f).value = data.budgets[f];
+                                localStorage.setItem('budget_'+f, data.budgets[f]);
+                            }
+                        });
+                    }
                 }).catch(err => console.error("讀取雲端資料失敗:", err));
         });
 
-        // 選擇分類
         function selectCat(element, cat) {
             triggerVibration("light"); 
             chosenCategory = cat;
             document.getElementById('selected-cat-text').innerText = cat;
-            
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
         }
 
-        // 點擊虛擬鍵盤數字
         function pressKey(key) {
             triggerVibration("light"); 
             if (key === 'C') {
@@ -137,31 +168,26 @@
             } else {
                 currentAmount = currentAmount === "0" ? key : currentAmount + key;
             }
-            document.getElementById('tx-amount').innerText = currentAmount;
+            // 畫面上顯示千分位格式，便於看清楚數字
+            document.getElementById('tx-amount').innerText = Number(currentAmount).toLocaleString();
         }
 
-        // 更新預算
         function updateBudget(cat, val) {
-            localStorage.setItem('budget_' + cat, val);
-            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${val}`);
+            let numVal = Number(val);
+            if (isNaN(numVal)) numVal = 0;
+            localStorage.setItem('budget_' + cat, numVal);
+            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${numVal}`);
         }
 
-        // 送出資料到試算表
         function submitRecord() {
-            if (!chosenCategory) { 
-                alert("請先選擇一個可愛的分類唷！🌸"); 
-                return; 
-            }
-            if (currentAmount === "0") { 
-                alert("請輸入金額！"); 
-                return; 
-            }
+            if (!chosenCategory) { alert("請先選擇一個分類唷！🌸"); return; }
+            if (currentAmount === "0" || isNaN(Number(currentAmount))) { alert("請輸入正確的金額！"); return; }
 
             const payload = {
                 date: document.getElementById('tx-date').value,
                 category: chosenCategory,
                 item: document.getElementById('tx-item').value,
-                amount: currentAmount
+                amount: Number(currentAmount) // 強制轉純數字送出，避免寫入髒資料造成試算表公式出錯
             };
 
             fetch(GAS_URL, {
@@ -172,10 +198,9 @@
             .then(res => {
                 triggerVibration("success"); 
                 alert(res.message);
-                location.reload(); // 重新整理網頁
+                location.reload();
             }).catch(err => {
-                alert("傳送失敗，請檢查 GAS 網址是否正確部署唷！");
-                console.error(err);
+                alert("傳送失敗，請檢查網路或 GAS 部署！");
             });
         }
     </script>
