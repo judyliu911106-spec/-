@@ -8,7 +8,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        /* 🌟 內建核心基本樣式防護，防止 style.css 沒載入時完全垮掉 */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffe4e1; margin: 0; padding: 10px; box-sizing: border-box; }
         .app-shell { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
         .glass-panel { background: rgba(255, 255, 255, 0.7); border-radius: 20px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -23,10 +22,31 @@
         .cat-btn { padding: 8px 14px; background: #fff; border-radius: 15px; cursor: pointer; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; transform: scale(1.05); }
         .amount-display { margin: 10px 0; text-align: center; font-size: 14px; background: #fff; padding: 6px; border-radius: 10px; }
+        
+        /* 數字鍵盤外觀 */
         .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .key { background: #fff; padding: 15px; text-align: center; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .key:active { background: #ffebf0; }
-        .submit-btn { background: #ffb6c1; color: white; grid-column: span 1; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .key { background: #fff; padding: 15px; text-align: center; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.1s ease; }
+        .key:active { background: #ffebf0; transform: scale(0.95); }
+        
+        /* 🌟 送出按鈕專屬：粉紅漸層外觀與「往下壓」動畫特效 */
+        .submit-btn { 
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
+            color: white; 
+            grid-column: span 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 16px;
+            box-shadow: 0 3px 6px rgba(255, 105, 180, 0.3);
+            transition: transform 0.08s ease, box-shadow 0.08s ease; /* 讓縮放顯得靈敏快捷 */
+        }
+        /* 🌟 按下去的瞬間：往下深壓(縮小)、陰影縮回，做出扎實的手感 */
+        .submit-btn:active { 
+            background: linear-gradient(135deg, #ffa1b2 0%, #ff52a3 100%);
+            transform: scale(0.90) translateY(2px); 
+            box-shadow: 0 1px 3px rgba(255, 105, 180, 0.2);
+        }
+
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ffedf0; z-index: 1000; }
         .nav-item { text-decoration: none; color: #888; font-size: 14px; width: 50%; text-align: center; line-height: 50px; }
         .nav-item.active { color: #ff1493; font-weight: bold; background: #fff0f5; }
@@ -98,7 +118,6 @@
         let currentAmount = "0";
         let chosenCategory = "";
 
-        // 安全防護震動
         function triggerVibration(type = "light") {
             try {
                 if (window.navigator && window.navigator.vibrate) {
@@ -118,7 +137,6 @@
             fetch(`${GAS_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
-                    // 🌟 核心修正：精準抓出今天手機系統的 "yyyy-MM" (例如："2026-07")
                     let today = new Date();
                     let y = today.getFullYear();
                     let m = String(today.getMonth() + 1).padStart(2, '0');
@@ -128,8 +146,11 @@
                     if (data && data.records) {
                         total = data.records.reduce((sum, r) => {
                             if (r.date) {
-                                // 🌟 統一將斜線換成橫槓，並直接切出前 7 個字（yyyy-MM）進行純文字死比對
-                                let formattedDate = r.date.toString().replace(/\//g, '-');
+                                let dateStr = r.date.toString();
+                                let amtStr = r.amount ? r.amount.toString() : "0";
+                                if (dateStr.includes("#NUM!") || amtStr.includes("#NUM!")) return sum;
+
+                                let formattedDate = dateStr.replace(/\//g, '-');
                                 let rowYearMonth = formattedDate.substring(0, 7);
                                 
                                 if (rowYearMonth === currentYearMonth) {
@@ -150,7 +171,7 @@
                             }
                         });
                     }
-                }).catch(err => console.error("讀取雲端資料失敗:", err));
+                }).catch(err => console.error("讀取資料失敗:", err));
         });
 
         function selectCat(element, cat) {
@@ -168,7 +189,6 @@
             } else {
                 currentAmount = currentAmount === "0" ? key : currentAmount + key;
             }
-            // 畫面上顯示千分位格式，便於看清楚數字
             document.getElementById('tx-amount').innerText = Number(currentAmount).toLocaleString();
         }
 
@@ -187,7 +207,7 @@
                 date: document.getElementById('tx-date').value,
                 category: chosenCategory,
                 item: document.getElementById('tx-item').value,
-                amount: Number(currentAmount) // 強制轉純數字送出，避免寫入髒資料造成試算表公式出錯
+                amount: Number(currentAmount)
             };
 
             fetch(GAS_URL, {
@@ -200,7 +220,7 @@
                 alert(res.message);
                 location.reload();
             }).catch(err => {
-                alert("傳送失敗，請檢查網路或 GAS 部署！");
+                alert("傳送失敗！");
             });
         }
     </script>
