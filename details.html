@@ -3,33 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>花費明細</title>
+    <title>夢幻粉紅記帳 - 明細歷史</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        /* 🌟 這裡融入了與首頁完全一致的夢幻粉紅背景 */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #ffe4e1; 
+            margin: 0; 
+            padding: 10px; 
+            box-sizing: border-box; 
+        }
+        
+        .app-shell { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            padding-bottom: 60px; 
+        }
+        
+        /* 🌟 一致的毛玻璃質感卡片 */
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.7); 
+            border-radius: 20px; 
+            padding: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+        }
+        
+        .text-center { text-align: center; }
+        .total-amount { font-size: 28px; font-weight: bold; color: #ff1493; margin-top: 5px; }
+        
+        /* 篩選區塊排版 */
+        .filter-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .filter-row input, .filter-row select { 
+            flex: 1; 
+            padding: 10px; 
+            border-radius: 12px; 
+            border: 1px solid #ffb6c1; 
+            background: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        /* 歷史明細清單外觀 */
+        .record-list { display: flex; flex-direction: column; gap: 8px; max-height: 60vh; overflow-y: auto; }
+        .record-card { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #fff; 
+            padding: 12px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+        }
+        .record-info { display: flex; flex-direction: column; gap: 2px; }
+        .record-title { font-weight: bold; color: #333; font-size: 15px; }
+        .record-meta { font-size: 12px; color: #888; }
+        .record-amount { font-weight: bold; color: #ff1493; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        
+        /* 刪除按鈕 */
+        .delete-btn { 
+            background: #ffe4e1; 
+            color: #ff1493; 
+            border: none; 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: bold; 
+        }
+        .delete-btn:active { background: #ffb6c1; color: #fff; }
+
+        .loading-text { text-align: center; color: #ff69b4; font-weight: bold; padding: 20px 0; }
+
+        /* 底部導覽列 */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ffedf0; z-index: 1000; }
+        .nav-item { text-decoration: none; color: #888; font-size: 14px; width: 50%; text-align: center; line-height: 50px; }
+        .nav-item.active { color: #ff1493; font-weight: bold; background: #fff0f5; }
+    </style>
 </head>
 <body>
     <div class="app-shell">
         <div class="glass-panel text-center">
-            <h2 class="panel-title">🔍 篩選花費總計</h2>
-            <div class="total-amount" style="color: #ff1493;">NT$ <span id="filter-total">0</span></div>
+            <div style="font-size:14px; color:#666; font-weight:bold;">🔍 篩選花費總計</div>
+            <div class="total-amount">NT$ <span id="filter-total">0</span></div>
         </div>
 
-        <div class="glass-panel filter-box">
-            <input type="date" id="filter-date" onchange="applyFilter()">
-            <select id="filter-cat" onchange="applyFilter()">
-                <option value="">所有分類</option>
-                <option value="主食">🍱 主食</option><option value="點心">🍰 點心</option>
-                <option value="住宿">🎀 住宿</option><option value="交通">🚗 交通</option>
-                <option value="購物">🛍️ 購物</option><option value="治裝">👗 治裝</option>
-                <option value="電話及會員">📱 電話會員</option><option value="醫療">🏥 醫療</option>
-                <option value="保養美體">💅 保養美體</option><option value="儲值及娛樂">🎮 娛樂儲值</option>
-                <option value="狗勾">🐶 狗勾</option><option value="其他">✨ 其他</option>
-            </select>
-        </div>
+        <div class="glass-panel">
+            <div class="filter-row">
+                <input type="month" id="filter-month" onchange="renderRecords()">
+                <select id="filter-category" onchange="renderRecords()">
+                    <option value="all">所有分類</option>
+                    <option value="主食">🍱 主食</option>
+                    <option value="點心">🍰 點心</option>
+                    <option value="住宿">🎀 住宿</option>
+                    <option value="交通">🚗 交通</option>
+                    <option value="購物">🛍️ 購物</option>
+                    <option value="治裝">👗 治裝</option>
+                    <option value="電話及會員">📱 電話會員</option>
+                    <option value="醫療">🏥 醫療</option>
+                    <option value="保養美體">💅 保養美體</option>
+                    <option value="儲值及娛樂">🎮 娛樂儲值</option>
+                    <option value="狗勾">🐶 狗勾</option>
+                    <option value="其他">✨ 其他</option>
+                </select>
+            </div>
 
-        <div class="scrollable-content" id="records-list">
-            <p style="text-align:center; color:#7a6e71; padding-top: 20px;">正在從 Google 讀取明細中...🌸</p>
+            <div id="loading-indicator" class="loading-text">正在更新資料中...🌸</div>
+            <div class="record-list" id="record-container" style="display: none;"></div>
         </div>
-
+        
         <div class="nav-bar">
             <a href="index.html" class="nav-item">記帳首頁</a>
             <a href="details.html" class="nav-item active">明細歷史</a>
@@ -40,82 +127,93 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
         let allRecords = [];
 
+        // 頁面載入時自動設定當前月份並抓取資料
         window.addEventListener('load', () => {
-            loadData();
-        });
-
-        function loadData() {
-            document.getElementById('records-list').innerHTML = `<p style="text-align:center; color:#7a6e71; padding-top: 20px;">正在更新資料中...🌸</p>`;
+            let today = new Date();
+            let y = today.getFullYear();
+            let m = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('filter-month').value = `${y}-${m}`;
+            
             fetch(`${GAS_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
-                    allRecords = data.records;
-                    applyFilter();
+                    if (data && data.records) {
+                        // 強力防禦：過濾掉包含 #NUM! 的損壞試算表資料
+                        allRecords = data.records.filter(r => {
+                            if (!r.date) return false;
+                            let dStr = r.date.toString();
+                            let aStr = r.amount ? r.amount.toString() : "0";
+                            return !dStr.includes("#NUM!") && !aStr.includes("#NUM!");
+                        });
+                    }
+                    document.getElementById('loading-indicator').style.display = 'none';
+                    document.getElementById('record-container').style.display = 'flex';
+                    renderRecords();
+                }).catch(err => {
+                    document.getElementById('loading-indicator').innerText = "讀取資料失敗，請重新整理 🌸";
                 });
-        }
+        });
 
-        function applyFilter() {
-            const dateVal = document.getElementById('filter-date').value;
-            const catVal = document.getElementById('filter-cat').value;
-            const container = document.getElementById('records-list');
+        // 渲染與計算篩選後的明細清單
+        function renderRecords() {
+            const targetMonth = document.getElementById('filter-month').value; // 格式: yyyy-MM
+            const targetCat = document.getElementById('filter-category').value;
+            const container = document.getElementById('record-container');
             container.innerHTML = "";
+            
+            let total = 0;
+            // 由新到舊排序
+            const sortedRecords = [...allRecords].reverse();
 
-            let filtered = allRecords.filter(r => {
-                const matchDate = dateVal ? r.date === dateVal : true;
-                const matchCat = catVal ? r.category === catVal : true;
-                return matchDate && matchCat;
-            });
-
-            let sum = filtered.reduce((total, r) => total + r.amount, 0);
-            document.getElementById('filter-total').innerText = sum.toLocaleString();
-
-            if(filtered.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#7a6e71; padding:20px;">沒有找到帳目唷 ✨</p>`;
-                return;
-            }
-
-            // 由新到舊排序歷史紀錄
-            filtered.reverse().forEach(r => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'record-item';
-                itemDiv.style.display = 'flex';
-                itemDiv.style.justifyContent = 'space-between';
-                itemDiv.style.alignItems = 'center';
-                itemDiv.style.boxShadow = '0 4px 12px rgba(255,182,193,0.15)';
-                itemDiv.style.border = '1px solid rgba(255,255,255,0.5)';
+            sortedRecords.forEach(r => {
+                let rowMonth = r.date.substring(0, 7);
+                let matchMonth = (rowMonth === targetMonth);
+                let matchCat = (targetCat === 'all' || r.category === targetCat);
                 
-                itemDiv.innerHTML = `
-                    <div style="flex: 1;">
-                        <span style="font-weight:600; color:#ff4500; font-size:14px;">${r.category}</span> 
-                        <span style="color:#555; margin-left:6px; font-size:14px;">${r.item || '(無項目)'}</span>
-                        <div style="font-size:11px; color:#999; margin-top:4px;">${r.date}</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="font-weight:700; color:#ff1493; font-size:17px;">$${r.amount.toLocaleString()}</div>
-                        <button class="delete-btn" onclick="deleteItem(${r.rowId}, '${r.date}', ${r.amount})">🗑️</button>
-                    </div>
-                `;
-                container.appendChild(itemDiv);
+                if (matchMonth && matchCat) {
+                    let amt = Number(r.amount) || 0;
+                    total += amt;
+                    
+                    // 建立明細卡片 HTML
+                    let card = document.createElement('div');
+                    card.className = 'record-card';
+                    
+                    let dateObj = new Date(r.date);
+                    let displayDate = `${String(dateObj.getMonth()+1).padStart(2,'0')}/${String(dateObj.getDate()).padStart(2,'0')}`;
+                    let itemText = r.item ? ` (${r.item})` : '';
+
+                    card.innerHTML = `
+                        <div class="record-info">
+                            <div class="record-title">${r.category}${itemText}</div>
+                            <div class="record-meta">${displayDate}</div>
+                        </div>
+                        <div class="record-amount">
+                            $${amt.toLocaleString()}
+                            <button class="delete-btn" onclick="deleteRecord(${r.rowId}, '${r.date}', ${amt})">刪除</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
             });
+            
+            document.getElementById('filter-total').innerText = total.toLocaleString();
+            if(container.children.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#999; padding:20px; font-size:14px;">本月這個分類沒有紀錄唷！✨</div>';
+            }
         }
 
-        // 刪除功能
-        function deleteItem(rowId, date, amount) {
-            if (confirm(`確定要刪除這筆 $${amount} 的紀錄嗎？🌸`)) {
-                fetch(`${GAS_URL}?action=deleteRecord&rowId=${rowId}&date=${date}&amount=${amount}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.status === "success") {
-                            alert("已成功刪除該筆帳目！✨");
-                            loadData(); // 重新載入最新資料
-                        } else {
-                            alert("刪除失敗：" + res.message);
-                        }
-                    }).catch(err => {
-                        alert("連線失敗，請稍後再試！");
-                        console.error(err);
-                    });
-            }
+        // 刪除紀錄功能
+        function deleteRecord(rowId, date, amount) {
+            if (!confirm("確定要刪除這筆記帳紀錄嗎？🌸")) return;
+            
+            fetch(`${GAS_URL}?action=deleteRecord&rowId=${rowId}&date=${date}&amount=${amount}`)
+                .then(res => res.json())
+                .then(res => {
+                    alert(res.message);
+                    if(res.status === "success") {
+                        location.reload();
+                    }
+                }).catch(err => alert("刪除失敗！"));
         }
     </script>
 </body>
