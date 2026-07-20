@@ -124,8 +124,15 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             const fields = ['save', 'spend', 'makeup', 'sport', 'insurance', 'travel', 'salary', 'others'];
-            fields.forEach(f => { if(localStorage.getItem('budget_'+f)) document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f); });
             
+            // 先從手機本機快取讀取
+            fields.forEach(f => { 
+                if(localStorage.getItem('budget_'+f) !== null) {
+                    document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f); 
+                }
+            });
+            
+            // 再跟線上試算表同步資料
             fetch(`${GAS_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
@@ -145,15 +152,28 @@
                         }, 0);
                     }
                     document.getElementById('month-total').innerText = total.toLocaleString();
+                    
+                    // 抓取線上的最新預算數字並更新快取
                     if (data && data.budgets) {
-                        fields.forEach(f => { if(data.budgets[f] !== undefined) { document.getElementById('bg-'+f).value = data.budgets[f]; localStorage.setItem('budget_'+f, data.budgets[f]); } });
+                        fields.forEach(f => { 
+                            if(data.budgets[f] !== undefined) { 
+                                document.getElementById('bg-'+f).value = data.budgets[f]; 
+                                localStorage.setItem('budget_'+f, data.budgets[f]); 
+                            } 
+                        });
                     }
-                });
+                }).catch(err => console.log("讀取資料失敗:", err));
         });
 
         function selectCat(element, cat) { triggerVibration("light"); chosenCategory = cat; document.getElementById('selected-cat-text').innerText = cat; document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected')); element.classList.add('selected'); }
         function pressKey(key) { triggerVibration("light"); if (key === 'C') { currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0"; } else { currentAmount = currentAmount === "0" ? key : currentAmount + key; } document.getElementById('tx-amount').innerText = Number(currentAmount).toLocaleString(); }
-        function updateBudget(cat, val) { fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${Number(val)||0}`); }
+        
+        // 🌟 修正重點：輸入數字時，同時儲存到手機本機 (localStorage) 與 傳送給 Google (GAS)
+        function updateBudget(cat, val) { 
+            let amt = Number(val) || 0;
+            localStorage.setItem('budget_' + cat, amt); // 立即記錄在手機端
+            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); // 背景同步給試算表
+        }
 
         function submitRecord() {
             if (!chosenCategory || currentAmount === "0") { alert("請填妥分類與金額！"); return; }
