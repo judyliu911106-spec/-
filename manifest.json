@@ -1,16 +1,15 @@
 {
-  "short_name": "粉紅記帳",
-  "name": "夢幻泡泡粉紅記帳 App",
-  "start_url": "./index.html",
+  "name": "老公請查帳",
+  "short_name": "老公請查帳",
+  "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#FFE4E1",
-  "theme_color": "#FFB6C1",
-  "orientation": "portrait",
+  "background_color": "#ffe4e1",
+  "theme_color": "#ffb6c1",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "https://api.iconify.design/emojione:ribbon.svg?width=192&height=192",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
     }
   ]
 }
