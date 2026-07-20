@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>夢幻粉紅記帳</title>
+    <title>老公請查帳</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    
+    <!-- 🌸 手機桌面夢幻圖示與名稱設定 -->
+    <link rel="apple-touch-icon" href="https://api.iconify.design/emojione:ribbon.svg?width=180&height=180">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="老公請查帳">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffe4e1; margin: 0; padding: 8px; box-sizing: border-box; }
         .app-shell { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 60px; min-height: calc(100vh - 70px); }
@@ -153,7 +159,6 @@
                     }
                     document.getElementById('month-total').innerText = total.toLocaleString();
                     
-                    // 抓取線上的最新預算數字並更新快取
                     if (data && data.budgets) {
                         fields.forEach(f => { 
                             if(data.budgets[f] !== undefined) { 
@@ -168,11 +173,10 @@
         function selectCat(element, cat) { triggerVibration("light"); chosenCategory = cat; document.getElementById('selected-cat-text').innerText = cat; document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected')); element.classList.add('selected'); }
         function pressKey(key) { triggerVibration("light"); if (key === 'C') { currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0"; } else { currentAmount = currentAmount === "0" ? key : currentAmount + key; } document.getElementById('tx-amount').innerText = Number(currentAmount).toLocaleString(); }
         
-        // 🌟 修正重點：輸入數字時，同時儲存到手機本機 (localStorage) 與 傳送給 Google (GAS)
         function updateBudget(cat, val) { 
             let amt = Number(val) || 0;
-            localStorage.setItem('budget_' + cat, amt); // 立即記錄在手機端
-            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); // 背景同步給試算表
+            localStorage.setItem('budget_' + cat, amt); // 立即記錄在手機本機
+            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); // 同步寫入線上
         }
 
         function submitRecord() {
