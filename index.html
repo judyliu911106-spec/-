@@ -18,10 +18,23 @@
         .app-shell { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 60px; min-height: calc(100vh - 70px); }
         .glass-panel { background: rgba(255, 255, 255, 0.7); border-radius: 20px; padding: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; }
         .text-center { text-align: center; }
-        .total-amount { font-size: 26px; font-weight: bold; color: #ff1493; margin-top: 3px; }
+        
+        /* 頂部雙面板樣式 */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+        .dashboard-item { background: rgba(255, 255, 255, 0.8); padding: 8px 4px; border-radius: 14px; text-align: center; }
+        .total-amount { font-size: 20px; font-weight: bold; color: #ff1493; margin-top: 2px; }
+        .rem-amount { font-size: 20px; font-weight: bold; color: #2e8b57; margin-top: 2px; }
+        .rem-over { color: #d9534f !important; }
+
+        /* 預算配置區與試算狀態條 */
         .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 10px; border-radius: 10px; }
-        .budget-item input { width: 70px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; }
+        .budget-item input { width: 70px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 14px; }
+        .budget-status-bar { margin-top: 8px; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; text-align: center; transition: all 0.3s ease; }
+        .bg-ok { background: #e8f5e9; color: #2e7d32; }
+        .bg-warn { background: #e3f2fd; color: #1565c0; }
+        .bg-error { background: #ffebee; color: #c62828; }
+
         .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .input-row input { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #ffb6c1; }
         .category-container { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 6px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
@@ -52,7 +65,7 @@
 
         .refresh-btn {
             position: absolute;
-            top: 12px;
+            top: 10px;
             right: 12px;
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid #ffb6c1;
@@ -74,22 +87,36 @@
     <div class="app-shell">
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div style="font-size:18px;">🌸</div>
-            <div style="font-size:13px; color:#666; font-weight:bold;">本月累積花費</div>
-            <div class="total-amount">NT$ <span id="month-total">...</span></div>
+            <div style="font-size:16px;">🌸 本月收支概況</div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-item">
+                    <div style="font-size:12px; color:#666; font-weight:bold;">本月累積花費</div>
+                    <div class="total-amount">NT$ <span id="month-total">0</span></div>
+                </div>
+                <div class="dashboard-item">
+                    <div style="font-size:12px; color:#666; font-weight:bold;">剩餘可用額度</div>
+                    <div class="rem-amount" id="rem-container">NT$ <span id="month-remaining">0</span></div>
+                </div>
+            </div>
         </div>
 
         <div class="glass-panel">
             <div style="font-size:13px; font-weight:bold; margin-bottom:6px; color:#555;">🎀 預算餘額分配</div>
             <div class="budget-grid">
-                <div class="budget-item"><span>月薪</span><input type="number" id="bg-salary" onchange="updateBudget('salary', this.value)"></div>
-                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" onchange="updateBudget('save', this.value)"></div>
-                <div class="budget-item"><span>可花費</span><input type="number" id="bg-spend" onchange="updateBudget('spend', this.value)"></div>
-                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" onchange="updateBudget('makeup', this.value)"></div>
-                <div class="budget-item"><span>運動</span><input type="number" id="bg-sport" onchange="updateBudget('sport', this.value)"></div>
-                <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>保險</span><input type="number" id="bg-insurance" onchange="updateBudget('insurance', this.value)"></div>
-                <div class="budget-item"><span>其他</span><input type="number" id="bg-others" onchange="updateBudget('others', this.value)"></div>
+                <div class="budget-item"><span style="font-weight:bold; color:#ff1493;">月薪</span><input type="number" id="bg-salary" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
+                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
+                <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
+                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
+                <div class="budget-item"><span>運動</span><input type="number" id="bg-sport" oninput="checkBudgetBalance()" onchange="updateBudget('sport', this.value)"></div>
+                <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
+                <div class="budget-item"><span>保險</span><input type="number" id="bg-insurance" oninput="checkBudgetBalance()" onchange="updateBudget('insurance', this.value)"></div>
+                <div class="budget-item"><span>其他</span><input type="number" id="bg-others" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
+            </div>
+            
+            <!-- 即時預算平衡提示條 -->
+            <div id="budget-status" class="budget-status-bar bg-ok">
+                ✅ 預算試算計算中...
             </div>
         </div>
 
@@ -138,6 +165,7 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
         let currentAmount = "0";
         let chosenCategory = "";
+        let currentMonthTotal = 0;
         const fields = ['save', 'spend', 'makeup', 'sport', 'insurance', 'travel', 'salary', 'others'];
 
         function triggerVibration(type = "light") {
@@ -154,14 +182,55 @@
                 }
             });
             
-            // 從雲端抓取資料 (加上 timestamp 防止被 iOS 瀏覽器強行快取舊網頁)
+            checkBudgetBalance();
             fetchCloudData(false);
         });
+
+        // 核心：即時計算預算平衡 status 與頂部剩餘金額
+        function checkBudgetBalance() {
+            let salary = Number(document.getElementById('bg-salary').value) || 0;
+            let spend = Number(document.getElementById('bg-spend').value) || 0;
+            
+            // 計算「月薪以外」所有分配項目的總和
+            let allocSum = fields.reduce((sum, f) => {
+                if (f === 'salary') return sum;
+                return sum + (Number(document.getElementById('bg-'+f).value) || 0);
+            }, 0);
+
+            // 1. 更新頂部剩餘可用額度 (可花費 - 本月累積花費)
+            let remaining = spend - currentMonthTotal;
+            let remElem = document.getElementById('month-remaining');
+            let remContainer = document.getElementById('rem-container');
+            remElem.innerText = remaining.toLocaleString();
+            
+            if (remaining < 0) {
+                remContainer.classList.add('rem-over');
+            } else {
+                remContainer.classList.remove('rem-over');
+            }
+
+            // 2. 更新預算試算狀態提示條
+            let statusElem = document.getElementById('budget-status');
+            let diff = salary - allocSum;
+
+            if (diff === 0 && salary > 0) {
+                statusElem.className = "budget-status-bar bg-ok";
+                statusElem.innerText = "✅ 預算分配完美平衡！(100% 已分配)";
+            } else if (diff > 0) {
+                statusElem.className = "budget-status-bar bg-warn";
+                statusElem.innerText = `💡 還有 NT$ ${diff.toLocaleString()} 未分配完畢`;
+            } else if (diff < 0) {
+                statusElem.className = "budget-status-bar bg-error";
+                statusElem.innerText = `⚠️ 預算爆了！超過月薪 NT$ ${Math.abs(diff).toLocaleString()}`;
+            } else {
+                statusElem.className = "budget-status-bar bg-warn";
+                statusElem.innerText = "💡 請輸入月薪與分配項目";
+            }
+        }
 
         function fetchCloudData(isManual = false) {
             if(isManual) triggerVibration("light");
             
-            // 加上 _t 時間戳記，強迫繞過 iOS 主畫面的舊快取
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
                 .then(res => res.json())
                 .then(data => {
@@ -180,6 +249,7 @@
                             } return sum;
                         }, 0);
                     }
+                    currentMonthTotal = total;
                     document.getElementById('month-total').innerText = total.toLocaleString();
                     
                     if (data && data.budgets) {
@@ -190,6 +260,10 @@
                             } 
                         });
                     }
+                    
+                    // 資料載入後重新計算試算表與剩餘金額
+                    checkBudgetBalance();
+                    
                     if(isManual) alert("同步成功囉！✨");
                 }).catch(err => {
                     if(isManual) alert("同步失敗，請檢查網路連線。");
@@ -201,8 +275,9 @@
         
         function updateBudget(cat, val) { 
             let amt = Number(val) || 0;
-            localStorage.setItem('budget_' + cat, amt); // 寫入 APP 自己的獨立本機快取
-            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); // 同步寫入雲端
+            localStorage.setItem('budget_' + cat, amt); 
+            checkBudgetBalance();
+            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); 
         }
 
         function submitRecord() {
