@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -14,36 +14,71 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffe4e1; margin: 0; padding: 8px; box-sizing: border-box; }
-        .app-shell { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 60px; min-height: calc(100vh - 70px); }
-        .glass-panel { background: rgba(255, 255, 255, 0.7); border-radius: 20px; padding: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #ffe4e1; 
+            margin: 0; 
+            padding: calc(env(safe-area-inset-top, 12px) + 4px) 8px 75px 8px; /* 自動避開 iPhone 頂部瀏海 */
+            box-sizing: border-box; 
+        }
+        .app-shell { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+        }
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.75); 
+            border-radius: 16px; 
+            padding: 8px 10px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+            position: relative; 
+        }
         .text-center { text-align: center; }
         
         /* 頂部雙面板樣式 */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
-        .dashboard-item { background: rgba(255, 255, 255, 0.8); padding: 8px 4px; border-radius: 14px; text-align: center; }
-        .total-amount { font-size: 20px; font-weight: bold; color: #ff1493; margin-top: 2px; }
-        .rem-amount { font-size: 20px; font-weight: bold; color: #2e8b57; margin-top: 2px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+        .dashboard-item { background: rgba(255, 255, 255, 0.85); padding: 5px 4px; border-radius: 12px; text-align: center; }
+        .total-amount { font-size: 18px; font-weight: bold; color: #ff1493; margin-top: 1px; }
+        .rem-amount { font-size: 18px; font-weight: bold; color: #2e8b57; margin-top: 1px; }
         .rem-over { color: #d9534f !important; }
 
         /* 預算配置區與試算狀態條 */
-        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 10px; border-radius: 10px; }
-        .budget-item input { width: 70px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 14px; }
-        .budget-status-bar { margin-top: 8px; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; text-align: center; transition: all 0.3s ease; }
+        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 4px 8px; border-radius: 8px; }
+        .budget-item input { width: 65px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 13px; }
+        
+        /* 每日可花天數提醒條 */
+        .daily-bar { 
+            margin-top: 5px; 
+            padding: 6px; 
+            background: #fff; 
+            border-radius: 8px; 
+            font-size: 12px; 
+            color: #444; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border: 1px solid #ffb6c1;
+        }
+        .daily-amount { color: #2e8b57; font-weight: bold; font-size: 14px; }
+
+        .budget-status-bar { margin-top: 4px; padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; text-align: center; transition: all 0.3s ease; }
         .bg-ok { background: #e8f5e9; color: #2e7d32; }
         .bg-warn { background: #e3f2fd; color: #1565c0; }
         .bg-error { background: #ffebee; color: #c62828; }
 
-        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .input-row input { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #ffb6c1; }
-        .category-container { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 6px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .cat-btn { padding: 6px 12px; background: #fff; border-radius: 12px; cursor: pointer; display: inline-block; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; transform: scale(1.03); }
-        .amount-display { margin: 8px 0; text-align: center; font-size: 13px; background: #fff; padding: 5px; border-radius: 10px; }
+        .input-row { display: flex; gap: 6px; margin-bottom: 5px; }
+        .input-row input { flex: 1; padding: 6px 8px; border-radius: 8px; border: 1px solid #ffb6c1; font-size: 12px; }
+        .category-container { display: flex; overflow-x: auto; gap: 5px; padding-bottom: 4px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .cat-btn { padding: 4px 8px; background: #fff; border-radius: 8px; cursor: pointer; display: inline-block; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; transform: scale(1.02); }
+        .amount-display { margin: 4px 0; text-align: center; font-size: 12px; background: #fff; padding: 3px; border-radius: 6px; }
         
-        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .key { background: #fff; padding: 12px; text-align: center; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.1s ease; }
+        /* 鍵盤間隔優化 */
+        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .key { background: #fff; padding: 8px; text-align: center; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.1s ease; }
         .key:active { background: #ffebf0; transform: scale(0.95); }
         
         .submit-btn { 
@@ -53,33 +88,46 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 16px;
-            box-shadow: 0 3px 6px rgba(255, 105, 180, 0.3);
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(255, 105, 180, 0.3);
             transition: transform 0.08s ease, box-shadow 0.08s ease;
         }
         .submit-btn:active { 
             background: linear-gradient(135deg, #ffa1b2 0%, #ff52a3 100%);
-            transform: scale(0.90) translateY(2px); 
-            box-shadow: 0 1px 3px rgba(255, 105, 180, 0.2);
+            transform: scale(0.90) translateY(1px); 
+            box-shadow: 0 1px 2px rgba(255, 105, 180, 0.2);
         }
 
         .refresh-btn {
             position: absolute;
-            top: 10px;
-            right: 12px;
+            top: 6px;
+            right: 10px;
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid #ffb6c1;
-            border-radius: 12px;
-            padding: 4px 8px;
-            font-size: 12px;
+            border-radius: 8px;
+            padding: 2px 6px;
+            font-size: 11px;
             color: #ff1493;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .refresh-btn:active { transform: scale(0.92); }
 
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ffedf0; z-index: 1000; }
-        .nav-item { text-decoration: none; color: #888; font-size: 14px; width: 50%; text-align: center; line-height: 50px; }
+        .nav-bar { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            height: 48px; 
+            background: #fff; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            border-top: 1px solid #ffedf0; 
+            z-index: 1000; 
+            padding-bottom: env(safe-area-inset-bottom, 0px); 
+        }
+        .nav-item { text-decoration: none; color: #888; font-size: 13px; width: 50%; text-align: center; line-height: 48px; }
         .nav-item.active { color: #ff1493; font-weight: bold; background: #fff0f5; }
     </style>
 </head>
@@ -87,36 +135,40 @@
     <div class="app-shell">
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div style="font-size:16px;">🌸 本月收支概況</div>
+            <div style="font-size:14px; font-weight:bold; color:#444;">🌸 本月收支概況</div>
             
             <div class="dashboard-grid">
                 <div class="dashboard-item">
-                    <div style="font-size:12px; color:#666; font-weight:bold;">本月累積花費</div>
+                    <div style="font-size:11px; color:#666; font-weight:bold;">本月累積花費</div>
                     <div class="total-amount">NT$ <span id="month-total">0</span></div>
                 </div>
                 <div class="dashboard-item">
-                    <div style="font-size:12px; color:#666; font-weight:bold;">剩餘可用額度</div>
+                    <div style="font-size:11px; color:#666; font-weight:bold;">剩餘可用額度</div>
                     <div class="rem-amount" id="rem-container">NT$ <span id="month-remaining">0</span></div>
                 </div>
             </div>
         </div>
 
         <div class="glass-panel">
-            <div style="font-size:13px; font-weight:bold; margin-bottom:6px; color:#555;">🎀 預算餘額分配</div>
+            <div style="font-size:12px; font-weight:bold; margin-bottom:4px; color:#555;">🎀 預算餘額分配</div>
             <div class="budget-grid">
                 <div class="budget-item"><span style="font-weight:bold; color:#ff1493;">月薪</span><input type="number" id="bg-salary" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
                 <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
                 <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
                 <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
-                <div class="budget-item"><span>運動</span><input type="number" id="bg-sport" oninput="checkBudgetBalance()" onchange="updateBudget('sport', this.value)"></div>
                 <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>保險</span><input type="number" id="bg-insurance" oninput="checkBudgetBalance()" onchange="updateBudget('insurance', this.value)"></div>
                 <div class="budget-item"><span>其他</span><input type="number" id="bg-others" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
             </div>
             
-            <!-- 即時預算平衡提示條 -->
+            <!-- 預算平衡提示條 -->
             <div id="budget-status" class="budget-status-bar bg-ok">
                 ✅ 預算試算計算中...
+            </div>
+
+            <!-- 📅 剩餘天數平均每日可花試算 -->
+            <div class="daily-bar">
+                <span>📅 本月剩餘 <b id="rem-days" style="color:#ff1493;">0</b> 天，平均每日可用：</span>
+                <span class="daily-amount">NT$ <span id="daily-budget">0</span></span>
             </div>
         </div>
 
@@ -166,7 +218,8 @@
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
-        const fields = ['save', 'spend', 'makeup', 'sport', 'insurance', 'travel', 'salary', 'others'];
+        // 移除保險(insurance)與運動(sport)
+        const fields = ['save', 'spend', 'makeup', 'travel', 'salary', 'others'];
 
         function triggerVibration(type = "light") {
             try { if (window.navigator && window.navigator.vibrate) { if (type === "light") window.navigator.vibrate(15); else if (type === "success") window.navigator.vibrate([40, 40, 40]); } } catch (e) {}
@@ -175,7 +228,6 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             
-            // 先載入本機快取
             fields.forEach(f => { 
                 if(localStorage.getItem('budget_'+f) !== null) {
                     document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f); 
@@ -186,18 +238,24 @@
             fetchCloudData(false);
         });
 
-        // 核心：即時計算預算平衡 status 與頂部剩餘金額
+        // 計算當月剩餘天數 (包含今天)
+        function getRemainingDaysInMonth() {
+            let now = new Date();
+            let totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            let currentDay = now.getDate();
+            return (totalDays - currentDay) + 1; // 包含今天
+        }
+
         function checkBudgetBalance() {
             let salary = Number(document.getElementById('bg-salary').value) || 0;
             let spend = Number(document.getElementById('bg-spend').value) || 0;
             
-            // 計算「月薪以外」所有分配項目的總和
             let allocSum = fields.reduce((sum, f) => {
                 if (f === 'salary') return sum;
                 return sum + (Number(document.getElementById('bg-'+f).value) || 0);
             }, 0);
 
-            // 1. 更新頂部剩餘可用額度 (可花費 - 本月累積花費)
+            // 1. 剩餘總額
             let remaining = spend - currentMonthTotal;
             let remElem = document.getElementById('month-remaining');
             let remContainer = document.getElementById('rem-container');
@@ -209,7 +267,14 @@
                 remContainer.classList.remove('rem-over');
             }
 
-            // 2. 更新預算試算狀態提示條
+            // 2. 剩餘天數平均每日可花計算
+            let remDays = getRemainingDaysInMonth();
+            document.getElementById('rem-days').innerText = remDays;
+            
+            let dailyBudget = remaining > 0 ? Math.floor(remaining / remDays) : 0;
+            document.getElementById('daily-budget').innerText = dailyBudget.toLocaleString();
+
+            // 3. 預算分配試算狀態條
             let statusElem = document.getElementById('budget-status');
             let diff = salary - allocSum;
 
@@ -261,9 +326,7 @@
                         });
                     }
                     
-                    // 資料載入後重新計算試算表與剩餘金額
                     checkBudgetBalance();
-                    
                     if(isManual) alert("同步成功囉！✨");
                 }).catch(err => {
                     if(isManual) alert("同步失敗，請檢查網路連線。");
