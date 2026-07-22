@@ -2,52 +2,130 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>老公請查帳 - 明細歷史</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>明細歷史 - 老公請查帳</title>
+    <!-- 🌸 版本號同步更新至 v4.0 -->
+    <link rel="stylesheet" href="style.css?v=4.0">
     <link rel="manifest" href="manifest.json">
-    
-    <!-- 🌸 手機桌面高顏值淺粉紅專屬圖示 -->
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="老公請查帳">
-
+    
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffe4e1 !important; margin: 0; padding: 8px; box-sizing: border-box; }
-        .app-shell { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 60px; min-height: calc(100vh - 20px); }
-        .glass-panel { background: rgba(255, 255, 255, 0.7) !important; border-radius: 20px; padding: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .grow-panel { flex-grow: 1; display: flex; flex-direction: column; }
-        .text-center { text-align: center; }
-        .total-amount { font-size: 26px; font-weight: bold; color: #ff1493; margin-top: 3px; }
-        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .filter-row input, .filter-row select { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #ffb6c1; background: #fff; font-size: 14px; outline: none; }
-        .record-list { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 220px); }
-        .record-card { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .record-info { display: flex; flex-direction: column; gap: 2px; }
-        .record-title { font-weight: bold; color: #333; font-size: 14px; }
-        .record-meta { font-size: 12px; color: #888; }
-        .record-amount { font-weight: bold; color: #ff1493; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-        .delete-btn { background: #ffe4e1; color: #ff1493; border: none; padding: 4px 8px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .delete-btn:active { background: #ffb6c1; color: #fff; }
-        .loading-text { text-align: center; color: #ff69b4; font-weight: bold; padding: 20px 0; }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffe4e1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ffedf0; z-index: 1000; }
-        .nav-item { text-decoration: none; color: #888; font-size: 14px; width: 50%; text-align: center; line-height: 50px; }
-        .nav-item.active { color: #ff1493; font-weight: bold; background: #fff0f5; }
+        body { 
+            padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
+            padding-bottom: calc(65px + env(safe-area-inset-bottom, 20px));
+            padding-left: 8px;
+            padding-right: 8px;
+            overflow-y: auto;
+        }
+
+        .app-shell { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+        }
+
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.85); 
+            border-radius: 14px; 
+            padding: 10px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
+            position: relative; 
+        }
+        .text-center { text-align: center; }
+
+        .filter-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .filter-row input, .filter-row select {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #ffb6c1;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .record-date { font-size: 10px; color: #888; }
+        .record-cat { font-size: 12px; font-weight: bold; color: #ff1493; }
+        .record-note { font-size: 11px; color: #555; }
+        .record-amt { font-size: 14px; font-weight: bold; color: #333; }
+        .del-btn { color: #d9534f; cursor: pointer; font-size: 12px; margin-left: 8px; }
+
+        /* 🔒 完全與 index.html 對齊的固定底部導覽列 */
+        .fixed-nav-bar { 
+            position: fixed !important; 
+            bottom: 0 !important; 
+            left: 0 !important; 
+            right: 0 !important;
+            width: 100% !important; 
+            height: calc(50px + env(safe-area-inset-bottom, 0px)) !important; 
+            background: #ffffff !important; 
+            display: flex !important; 
+            justify-content: space-around !important; 
+            align-items: flex-start !important; 
+            border-top: 1px solid #ffedf0 !important; 
+            z-index: 999999 !important; 
+            padding-top: 4px !important;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05) !important;
+        }
+        .nav-link { 
+            text-decoration: none; 
+            color: #888; 
+            font-size: 13px; 
+            flex: 1; 
+            text-align: center; 
+            height: 40px;
+            line-height: 40px;
+        }
+        .nav-link.active { 
+            color: #ff1493; 
+            font-weight: bold; 
+            background: #fff0f5; 
+            border-radius: 8px;
+            margin: 0 4px;
+        }
     </style>
 </head>
 <body>
+
     <div class="app-shell">
         <div class="glass-panel text-center">
-            <div style="font-size:14px; color:#666; font-weight:bold;">🔍 篩選花費總計</div>
-            <div class="total-amount">NT$ <span id="filter-total">0</span></div>
+            <div style="font-size:12px; font-weight:bold; color:#444;">🔍 篩選花費總計</div>
+            <div style="font-size:18px; font-weight:bold; color:#ff1493; margin-top:2px;">
+                NT$ <span id="filtered-total">0</span>
+            </div>
         </div>
 
-        <div class="glass-panel grow-panel">
+        <div class="glass-panel">
             <div class="filter-row">
                 <input type="month" id="filter-month" onchange="renderRecords()">
-                <select id="filter-category" onchange="renderRecords()">
-                    <option value="all">所有分類</option>
+                <select id="filter-cat" onchange="renderRecords()">
+                    <option value="ALL">所有分類</option>
                     <option value="主食">🍱 主食</option>
                     <option value="點心">🍰 點心</option>
                     <option value="住宿">🎀 住宿</option>
@@ -63,58 +141,114 @@
                 </select>
             </div>
 
-            <div id="loading-indicator" class="loading-text">正在更新資料中...🌸</div>
-            <div class="record-list" id="record-container" style="display: none;"></div>
-        </div>
-        
-        <div class="nav-bar">
-            <a href="index.html" class="nav-item">記帳首頁</a>
-            <a href="details.html" class="nav-item active">明細歷史</a>
+            <div id="records-list">
+                <div class="text-center" style="padding: 20px; color: #888; font-size: 12px;">
+                    正在更新資料中...🌸
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- 底部導覽列 -->
+    <nav class="fixed-nav-bar">
+        <a href="index.html" class="nav-link">記帳首頁</a>
+        <a href="details.html" class="nav-link active">明細歷史</a>
+    </nav>
+
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
-        let allRecords = [];
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec";
+        let rawRecords = [];
 
         window.addEventListener('load', () => {
-            let today = new Date();
-            document.getElementById('filter-month').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            
-            fetch(`${GAS_URL}?action=getData`)
-                .then(res => res.json()).then(data => {
-                    if (data && data.records) {
-                        allRecords = data.records.filter(r => r.date && !r.date.toString().includes("#NUM!") && !(r.amount && r.amount.toString().includes("#NUM!")));
-                    }
-                    document.getElementById('loading-indicator').style.display = 'none';
-                    document.getElementById('record-container').style.display = 'flex';
-                    renderRecords();
-                }).catch(() => { document.getElementById('loading-indicator').innerText = "讀取資料失敗 🌸"; });
+            let now = new Date();
+            let ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('filter-month').value = ym;
+            fetchRecords();
         });
 
-        function renderRecords() {
-            const targetMonth = document.getElementById('filter-month').value; 
-            const targetCat = document.getElementById('filter-category').value;
-            const container = document.getElementById('record-container');
-            container.innerHTML = "";
-            let total = 0;
-
-            [...allRecords].reverse().forEach(r => {
-                if (r.date.substring(0, 7) === targetMonth && (targetCat === 'all' || r.category === targetCat)) {
-                    let amt = Number(r.amount) || 0; total += amt;
-                    let card = document.createElement('div'); card.className = 'record-card';
-                    let dateObj = new Date(r.date);
-                    card.innerHTML = `<div class="record-info"><div class="record-title">${r.category}${r.item?` (${r.item})`:''}</div><div class="record-meta">${String(dateObj.getMonth()+1).padStart(2,'0')}/${String(dateObj.getDate()).padStart(2,'0')}</div></div><div class="record-amount">$${amt.toLocaleString()}<button class="delete-btn" onclick="deleteRecord(${r.rowId}, '${r.date}', ${amt})">刪除</button></div>`;
-                    container.appendChild(card);
-                }
-            });
-            document.getElementById('filter-total').innerText = total.toLocaleString();
-            if(container.children.length === 0) container.innerHTML = '<div style="text-align:center; color:#999; padding:20px; font-size:14px;">本月這個分類沒有紀錄唷！✨</div>';
+        function fetchRecords() {
+            fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.records) {
+                        rawRecords = data.records;
+                        renderRecords();
+                    } else {
+                        document.getElementById('records-list').innerHTML = `<div class="text-center" style="padding:20px; color:#888;">尚無任何記錄🌸</div>`;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('records-list').innerHTML = `<div class="text-center" style="padding:20px; color:#d9534f;">讀取失敗，請重新載入</div>`;
+                });
         }
 
-        function deleteRecord(rowId, date, amount) {
-            if (!confirm("確定要刪除這筆紀錄嗎？🌸")) return;
-            fetch(`${GAS_URL}?action=deleteRecord&rowId=${rowId}&date=${date}&amount=${amount}`).then(res => res.json()).then(res => { alert(res.message); if(res.status === "success") location.reload(); });
+        function renderRecords() {
+            let selectedMonth = document.getElementById('filter-month').value;
+            let selectedCat = document.getElementById('filter-cat').value;
+            let listElem = document.getElementById('records-list');
+            
+            let filtered = rawRecords.filter(r => {
+                if (!r.date) return false;
+                let dateStr = r.date.toString().replace(/\//g, '-');
+                if (dateStr.includes("#NUM!")) return false;
+                
+                let matchMonth = true;
+                if (selectedMonth) {
+                    matchMonth = dateStr.substring(0, 7) === selectedMonth;
+                }
+                
+                let matchCat = true;
+                if (selectedCat !== 'ALL') {
+                    matchCat = (r.category === selectedCat);
+                }
+                
+                return matchMonth && matchCat;
+            });
+
+            // 算總額
+            let total = filtered.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+            document.getElementById('filtered-total').innerText = total.toLocaleString();
+
+            if (filtered.length === 0) {
+                listElem.innerHTML = `<div class="text-center" style="padding:20px; color:#888; font-size:12px;">這個月份沒有相關記錄喔✨</div>`;
+                return;
+            }
+
+            // 按日期倒序排列
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = '';
+            filtered.forEach(r => {
+                let d = r.date ? r.date.toString().substring(0, 10) : '';
+                html += `
+                    <div class="record-item">
+                        <div>
+                            <div class="record-cat">${r.category || '未分類'} <span class="record-date">${d}</span></div>
+                            <div class="record-note">${r.item || '-'}</div>
+                        </div>
+                        <div style="display:flex; align-items:center;">
+                            <span class="record-amt">NT$ ${Number(r.amount || 0).toLocaleString()}</span>
+                            <span class="del-btn" onclick="deleteRecord('${r.id || ''}')">🗑️</span>
+                        </div>
+                    </div>
+                `;
+            });
+            listElem.innerHTML = html;
+        }
+
+        function deleteRecord(id) {
+            if (!id) { alert("此筆記錄無法由前端直接刪除"); return; }
+            if (confirm("確定要刪除這筆記錄嗎？")) {
+                fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "delete", id: id })
+                })
+                .then(res => res.json())
+                .then(res => {
+                    alert(res.message || "已刪除！");
+                    fetchRecords();
+                });
+            }
         }
     </script>
 </body>
