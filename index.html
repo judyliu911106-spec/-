@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳</title>
-    <!-- 🌸 加上版本號 ?v=3.0 強制打破 Safari 快取，徹底解決 PWA 跑版 -->
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="style.css?v=4.0">
     <link rel="manifest" href="manifest.json">
     
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
@@ -27,7 +26,7 @@
 
         body { 
             padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
-            padding-bottom: calc(55px + env(safe-area-inset-bottom, 10px));
+            padding-bottom: calc(65px + env(safe-area-inset-bottom, 20px));
             padding-left: 8px;
             padding-right: 8px;
             overflow-y: auto;
@@ -112,21 +111,21 @@
             cursor: pointer;
         }
 
-        /* 🔒 強制固定在視窗最底部的導覽列 */
+        /* 🔒 貼合 iPhone 最底部的導覽列 */
         .fixed-nav-bar { 
             position: fixed !important; 
             bottom: 0 !important; 
             left: 0 !important; 
             right: 0 !important;
             width: 100% !important; 
-            height: 48px !important; 
+            height: calc(50px + env(safe-area-inset-bottom, 0px)) !important; 
             background: #ffffff !important; 
             display: flex !important; 
             justify-content: space-around !important; 
-            align-items: center !important; 
+            align-items: flex-start !important; 
             border-top: 1px solid #ffedf0 !important; 
             z-index: 999999 !important; 
-            padding-bottom: env(safe-area-inset-bottom, 0px) !important; 
+            padding-top: 4px !important;
             box-shadow: 0 -2px 8px rgba(0,0,0,0.05) !important;
         }
         .nav-link { 
@@ -135,13 +134,15 @@
             font-size: 13px; 
             flex: 1; 
             text-align: center; 
-            line-height: 48px; 
-            height: 100%;
+            height: 40px;
+            line-height: 40px;
         }
         .nav-link.active { 
             color: #ff1493; 
             font-weight: bold; 
             background: #fff0f5; 
+            border-radius: 8px;
+            margin: 0 4px;
         }
     </style>
 </head>
@@ -240,10 +241,10 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             
-            // 先從手機本地讀取，確保不空白
+            // 從手機本地快取讀取
             fields.forEach(f => { 
                 let val = localStorage.getItem('budget_' + f);
-                if (val !== null && val !== undefined && val !== "") {
+                if (val !== null && val !== undefined && val !== "" && val !== "0") {
                     document.getElementById('bg-' + f).value = val; 
                 }
             });
@@ -327,12 +328,13 @@
                     currentMonthTotal = total;
                     document.getElementById('month-total').innerText = total.toLocaleString();
                     
-                    // 雲端資料同步，避免空白蓋掉現有輸入
+                    // 🛡️ 智能防蓋機制：只在雲端有大於 0 的有效數字時才覆蓋
                     if (data && data.budgets) {
                         fields.forEach(f => { 
-                            if (data.budgets[f] !== undefined && data.budgets[f] !== "" && data.budgets[f] !== null) { 
-                                document.getElementById('bg-' + f).value = data.budgets[f]; 
-                                localStorage.setItem('budget_' + f, data.budgets[f]); 
+                            let cloudVal = Number(data.budgets[f]);
+                            if (!isNaN(cloudVal) && cloudVal > 0) { 
+                                document.getElementById('bg-' + f).value = cloudVal; 
+                                localStorage.setItem('budget_' + f, cloudVal); 
                             } 
                         });
                     }
