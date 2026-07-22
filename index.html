@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- 🌸 加上版本號 ?v=3.0 強制打破 Safari 快取，徹底解決 PWA 跑版 -->
+    <link rel="stylesheet" href="style.css?v=3.0">
     <link rel="manifest" href="manifest.json">
     
-    <!-- 🌸 手機桌面高顏值淺粉紅專屬圖示 -->
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="老公請查帳">
@@ -15,13 +15,24 @@
 
     <style>
         * { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: #ffe4e1; 
-            margin: 0; 
-            padding: calc(env(safe-area-inset-top, 10px) + 2px) 8px 65px 8px; 
-            box-sizing: border-box; 
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffe4e1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
+
+        body { 
+            padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
+            padding-bottom: calc(55px + env(safe-area-inset-bottom, 10px));
+            padding-left: 8px;
+            padding-right: 8px;
+            overflow-y: auto;
+        }
+
         .app-shell { 
             max-width: 500px; 
             margin: 0 auto; 
@@ -29,28 +40,26 @@
             flex-direction: column; 
             gap: 5px; 
         }
+
         .glass-panel { 
-            background: rgba(255, 255, 255, 0.75); 
+            background: rgba(255, 255, 255, 0.85); 
             border-radius: 14px; 
             padding: 6px 10px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
             position: relative; 
         }
         .text-center { text-align: center; }
         
-        /* 頂部雙面板樣式 */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 3px; }
-        .dashboard-item { background: rgba(255, 255, 255, 0.85); padding: 4px; border-radius: 10px; text-align: center; }
-        .total-amount { font-size: 17px; font-weight: bold; color: #ff1493; }
-        .rem-amount { font-size: 17px; font-weight: bold; color: #2e8b57; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
+        .dashboard-item { background: rgba(255, 255, 255, 0.95); padding: 4px; border-radius: 10px; text-align: center; }
+        .total-amount { font-size: 16px; font-weight: bold; color: #ff1493; }
+        .rem-amount { font-size: 16px; font-weight: bold; color: #2e8b57; }
         .rem-over { color: #d9534f !important; }
 
-        /* 預算配置區與試算狀態條 */
         .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
         .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 3px 8px; border-radius: 8px; }
-        .budget-item input { width: 60px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 13px; }
+        .budget-item input { width: 65px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 12px; }
         
-        /* 每日可花天數提醒條 */
         .daily-bar { 
             margin-top: 4px; 
             padding: 4px 8px; 
@@ -65,7 +74,7 @@
         }
         .daily-amount { color: #2e8b57; font-weight: bold; font-size: 13px; }
 
-        .budget-status-bar { margin-top: 4px; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; text-align: center; transition: all 0.3s ease; }
+        .budget-status-bar { margin-top: 4px; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; text-align: center; }
         .bg-ok { background: #e8f5e9; color: #2e7d32; }
         .bg-warn { background: #e3f2fd; color: #1565c0; }
         .bg-error { background: #ffebee; color: #c62828; }
@@ -73,28 +82,21 @@
         .input-row { display: flex; gap: 6px; margin-bottom: 4px; }
         .input-row input { flex: 1; padding: 5px 8px; border-radius: 8px; border: 1px solid #ffb6c1; font-size: 12px; }
         .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 3px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .cat-btn { padding: 4px 8px; background: #fff; border-radius: 8px; cursor: pointer; display: inline-block; font-size: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; transform: scale(1.02); }
-        .amount-display { margin: 3px 0; text-align: center; font-size: 11px; background: #fff; padding: 2px; border-radius: 6px; }
+        .cat-btn { padding: 4px 8px; background: #fff; border-radius: 8px; cursor: pointer; display: inline-block; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; }
+        .amount-display { margin: 2px 0; text-align: center; font-size: 11px; background: #fff; padding: 2px; border-radius: 6px; }
         
-        /* 鍵盤適度壓縮高度 */
         .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .key { background: #fff; padding: 6px 0; text-align: center; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.1s ease; }
-        .key:active { background: #ffebf0; transform: scale(0.95); }
+        .key { background: #fff; padding: 6px 0; text-align: center; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .key:active { background: #ffebf0; }
         
         .submit-btn { 
             background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
             color: white; 
-            grid-column: span 1; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
             font-size: 13px;
-            box-shadow: 0 2px 4px rgba(255, 105, 180, 0.3);
-        }
-        .submit-btn:active { 
-            background: linear-gradient(135deg, #ffa1b2 0%, #ff52a3 100%);
-            transform: scale(0.90); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .refresh-btn {
@@ -105,37 +107,38 @@
             border: 1px solid #ffb6c1;
             border-radius: 6px;
             padding: 2px 6px;
-            font-size: 11px;
+            font-size: 10px;
             color: #ff1493;
             cursor: pointer;
         }
 
-        /* 🔒 導覽列極致修復修正 */
-        .nav-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 48px; 
-            background: #ffffff; 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            border-top: 1px solid #ffedf0; 
-            z-index: 9999; 
-            padding-bottom: env(safe-area-inset-bottom, 0px); 
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+        /* 🔒 強制固定在視窗最底部的導覽列 */
+        .fixed-nav-bar { 
+            position: fixed !important; 
+            bottom: 0 !important; 
+            left: 0 !important; 
+            right: 0 !important;
+            width: 100% !important; 
+            height: 48px !important; 
+            background: #ffffff !important; 
+            display: flex !important; 
+            justify-content: space-around !important; 
+            align-items: center !important; 
+            border-top: 1px solid #ffedf0 !important; 
+            z-index: 999999 !important; 
+            padding-bottom: env(safe-area-inset-bottom, 0px) !important; 
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05) !important;
         }
-        .nav-item { 
+        .nav-link { 
             text-decoration: none; 
             color: #888; 
             font-size: 13px; 
             flex: 1; 
             text-align: center; 
             line-height: 48px; 
-            display: block;
+            height: 100%;
         }
-        .nav-item.active { 
+        .nav-link.active { 
             color: #ff1493; 
             font-weight: bold; 
             background: #fff0f5; 
@@ -143,10 +146,11 @@
     </style>
 </head>
 <body>
+
     <div class="app-shell">
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div style="font-size:13px; font-weight:bold; color:#444;">🌸 本月收支概況</div>
+            <div style="font-size:12px; font-weight:bold; color:#444;">🌸 本月收支概況</div>
             
             <div class="dashboard-grid">
                 <div class="dashboard-item">
@@ -161,22 +165,20 @@
         </div>
 
         <div class="glass-panel">
-            <div style="font-size:12px; font-weight:bold; margin-bottom:3px; color:#555;">🎀 預算餘額分配</div>
+            <div style="font-size:11px; font-weight:bold; margin-bottom:3px; color:#555;">🎀 預算餘額分配</div>
             <div class="budget-grid">
-                <div class="budget-item"><span style="font-weight:bold; color:#ff1493;">月薪</span><input type="number" id="bg-salary" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
-                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
-                <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
-                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
-                <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>其他</span><input type="number" id="bg-others" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
+                <div class="budget-item"><span style="font-weight:bold; color:#ff1493;">月薪</span><input type="number" id="bg-salary" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
+                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
+                <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
+                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
+                <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
+                <div class="budget-item"><span>其他</span><input type="number" id="bg-others" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
             </div>
             
-            <!-- 預算平衡提示條 -->
             <div id="budget-status" class="budget-status-bar bg-ok">
                 ✅ 預算試算計算中...
             </div>
 
-            <!-- 📅 剩餘天數平均每日可花試算 -->
             <div class="daily-bar">
                 <span>📅 本月剩餘 <b id="rem-days" style="color:#ff1493;">0</b> 天，平均每日可用：</span>
                 <span class="daily-amount">NT$ <span id="daily-budget">0</span></span>
@@ -219,18 +221,17 @@
         </div>
     </div>
 
-    <!-- 底部導覽列 -->
-    <div class="nav-bar">
-        <a href="index.html" class="nav-item active">記帳首頁</a>
-        <a href="details.html" class="nav-item">明細歷史</a>
-    </div>
+    <nav class="fixed-nav-bar">
+        <a href="index.html" class="nav-link active">記帳首頁</a>
+        <a href="details.html" class="nav-link">明細歷史</a>
+    </nav>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
-        const fields = ['save', 'spend', 'makeup', 'travel', 'salary', 'others'];
+        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'others'];
 
         function triggerVibration(type = "light") {
             try { if (window.navigator && window.navigator.vibrate) { if (type === "light") window.navigator.vibrate(15); else if (type === "success") window.navigator.vibrate([40, 40, 40]); } } catch (e) {}
@@ -239,9 +240,11 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             
+            // 先從手機本地讀取，確保不空白
             fields.forEach(f => { 
-                if(localStorage.getItem('budget_'+f) !== null) {
-                    document.getElementById('bg-'+f).value = localStorage.getItem('budget_'+f); 
+                let val = localStorage.getItem('budget_' + f);
+                if (val !== null && val !== undefined && val !== "") {
+                    document.getElementById('bg-' + f).value = val; 
                 }
             });
             
@@ -262,7 +265,7 @@
             
             let allocSum = fields.reduce((sum, f) => {
                 if (f === 'salary') return sum;
-                return sum + (Number(document.getElementById('bg-'+f).value) || 0);
+                return sum + (Number(document.getElementById('bg-' + f).value) || 0);
             }, 0);
 
             let remaining = spend - currentMonthTotal;
@@ -324,11 +327,12 @@
                     currentMonthTotal = total;
                     document.getElementById('month-total').innerText = total.toLocaleString();
                     
+                    // 雲端資料同步，避免空白蓋掉現有輸入
                     if (data && data.budgets) {
                         fields.forEach(f => { 
-                            if(data.budgets[f] !== undefined) { 
-                                document.getElementById('bg-'+f).value = data.budgets[f]; 
-                                localStorage.setItem('budget_'+f, data.budgets[f]); 
+                            if (data.budgets[f] !== undefined && data.budgets[f] !== "" && data.budgets[f] !== null) { 
+                                document.getElementById('bg-' + f).value = data.budgets[f]; 
+                                localStorage.setItem('budget_' + f, data.budgets[f]); 
                             } 
                         });
                     }
