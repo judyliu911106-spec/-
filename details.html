@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>明細歷史 - 老公請查帳</title>
-    <!-- 🌸 版本號同步更新至 v4.0 -->
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=5.0">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
     
@@ -23,7 +22,7 @@
 
         body { 
             padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
-            padding-bottom: calc(65px + env(safe-area-inset-bottom, 20px));
+            padding-bottom: calc(55px + env(safe-area-inset-bottom, 0px));
             padding-left: 8px;
             padding-right: 8px;
             overflow-y: auto;
@@ -76,18 +75,18 @@
         .record-amt { font-size: 14px; font-weight: bold; color: #333; }
         .del-btn { color: #d9534f; cursor: pointer; font-size: 12px; margin-left: 8px; }
 
-        /* 🔒 完全與 index.html 對齊的固定底部導覽列 */
+        /* ✨ 緊貼螢幕最底部的導覽列 */
         .fixed-nav-bar { 
             position: fixed !important; 
             bottom: 0 !important; 
             left: 0 !important; 
             right: 0 !important;
             width: 100% !important; 
-            height: calc(50px + env(safe-area-inset-bottom, 0px)) !important; 
+            padding-bottom: env(safe-area-inset-bottom, 0px) !important; 
             background: #ffffff !important; 
             display: flex !important; 
             justify-content: space-around !important; 
-            align-items: flex-start !important; 
+            align-items: center !important; 
             border-top: 1px solid #ffedf0 !important; 
             z-index: 999999 !important; 
             padding-top: 4px !important;
@@ -99,15 +98,15 @@
             font-size: 13px; 
             flex: 1; 
             text-align: center; 
-            height: 40px;
-            line-height: 40px;
+            height: 42px;
+            line-height: 42px;
+            margin: 2px 6px;
         }
         .nav-link.active { 
             color: #ff1493; 
             font-weight: bold; 
             background: #fff0f5; 
             border-radius: 8px;
-            margin: 0 4px;
         }
     </style>
 </head>
@@ -205,7 +204,6 @@
                 return matchMonth && matchCat;
             });
 
-            // 算總額
             let total = filtered.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
             document.getElementById('filtered-total').innerText = total.toLocaleString();
 
@@ -214,7 +212,6 @@
                 return;
             }
 
-            // 按日期倒序排列
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             let html = '';
