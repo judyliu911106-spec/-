@@ -64,7 +64,6 @@
 
         .text-center { text-align: center; }
 
-        /* 頂部總覽區塊 */
         .summary-title { font-size: 11px; font-weight: bold; color: #666; margin-bottom: 2px; }
         .summary-amount { font-size: 20px; font-weight: bold; color: #ff1493; }
 
@@ -83,9 +82,7 @@
             transition: width 0.3s ease;
         }
 
-        /* 輸入區塊格線 */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
 
         .form-group { margin-bottom: 6px; }
         .form-label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 3px; display: block; }
@@ -99,7 +96,6 @@
             outline: none;
         }
 
-        /* 預算試算卡片 */
         .budget-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -140,7 +136,6 @@
             font-weight: bold;
         }
 
-        /* 按鈕樣式 */
         .btn-pink {
             width: 100%;
             background: #ff1493;
@@ -156,7 +151,6 @@
         }
         .btn-pink:active { background: #e01183; }
 
-        /* 備忘錄區塊 */
         .memo-item {
             background: #fff;
             padding: 8px 10px;
@@ -170,7 +164,6 @@
         .memo-text { font-size: 13px; color: #333; flex: 1; word-break: break-all; }
         .memo-del { color: #d9534f; cursor: pointer; font-size: 14px; margin-left: 8px; }
 
-        /* 🌸 底部固定導覽列 */
         .fixed-nav-bar { 
             position: fixed !important; 
             bottom: 0 !important; 
@@ -214,7 +207,6 @@
             border: 1px solid #ffb6c1;
         }
 
-        /* 頁面切換控制 */
         .page-view { display: none; }
         .page-view.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
     </style>
@@ -222,9 +214,7 @@
 <body>
 
     <div class="app-shell">
-        <!-- 🌸 記帳首頁 Page View -->
         <div id="page-accounting" class="page-view active">
-            <!-- 頂部本月開銷概況 -->
             <div class="glass-panel text-center">
                 <div class="summary-title">🌸 本月開銷概況 🌸</div>
                 <div class="summary-amount">NT$ <span id="month-total">0</span></div>
@@ -233,11 +223,8 @@
                 </div>
             </div>
 
-            <!-- 主區塊：快速記帳與預算規劃 -->
             <div class="glass-panel main-panel">
                 <div class="scrollable-content">
-                    
-                    <!-- 快速記帳表單 -->
                     <div style="font-size: 12px; font-weight: bold; color: #ff1493; margin-bottom: 6px;">✏️ 快速新增記帳</div>
                     <div class="grid-2">
                         <div class="form-group">
@@ -281,14 +268,12 @@
 
                     <hr style="border: 0; border-top: 1px dashed #ffb6c1; margin: 8px 0 12px 0;">
 
-                    <!-- 預算規劃與控制區塊 -->
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <span style="font-size: 12px; font-weight: bold; color: #ff1493;">💡 分類預算對比 (左預算 / 右已花)</span>
                         <span style="font-size: 10px; color: #888;">自動儲存預算</span>
                     </div>
 
                     <div class="budget-grid">
-                        <!-- 主食 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🍱 主食</span></div>
                             <div class="budget-card-inputs">
@@ -298,7 +283,6 @@
                             <div class="budget-status" id="st-主食">-</div>
                         </div>
 
-                        <!-- 點心 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🍰 點心</span></div>
                             <div class="budget-card-inputs">
@@ -308,7 +292,6 @@
                             <div class="budget-status" id="st-點心">-</div>
                         </div>
 
-                        <!-- 飲料 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🥤 飲料</span></div>
                             <div class="budget-card-inputs">
@@ -318,7 +301,6 @@
                             <div class="budget-status" id="st-飲料">-</div>
                         </div>
 
-                        <!-- 必要開銷 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>📦 必要開銷</span></div>
                             <div class="budget-card-inputs">
@@ -328,7 +310,6 @@
                             <div class="budget-status" id="st-必要開銷">-</div>
                         </div>
 
-                        <!-- 獅薩 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🦁 獅薩</span></div>
                             <div class="budget-card-inputs">
@@ -338,7 +319,6 @@
                             <div class="budget-status" id="st-獅薩">-</div>
                         </div>
 
-                        <!-- 住宿 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🎀 住宿</span></div>
                             <div class="budget-card-inputs">
@@ -348,7 +328,6 @@
                             <div class="budget-status" id="st-住宿">-</div>
                         </div>
 
-                        <!-- 交通 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🚗 交通</span></div>
                             <div class="budget-card-inputs">
@@ -358,7 +337,6 @@
                             <div class="budget-status" id="st-交通">-</div>
                         </div>
 
-                        <!-- 購物 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🛍️ 購物</span></div>
                             <div class="budget-card-inputs">
@@ -368,7 +346,6 @@
                             <div class="budget-status" id="st-購物">-</div>
                         </div>
 
-                        <!-- 治裝 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>👗 治裝</span></div>
                             <div class="budget-card-inputs">
@@ -378,7 +355,6 @@
                             <div class="budget-status" id="st-治裝">-</div>
                         </div>
 
-                        <!-- 電話及會員 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>📱 電話會員</span></div>
                             <div class="budget-card-inputs">
@@ -388,7 +364,6 @@
                             <div class="budget-status" id="st-電話及會員">-</div>
                         </div>
 
-                        <!-- 醫療 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🏥 醫療</span></div>
                             <div class="budget-card-inputs">
@@ -398,7 +373,6 @@
                             <div class="budget-status" id="st-醫療">-</div>
                         </div>
 
-                        <!-- 保養美體 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>💅 保養美體</span></div>
                             <div class="budget-card-inputs">
@@ -408,7 +382,6 @@
                             <div class="budget-status" id="st-保養美體">-</div>
                         </div>
 
-                        <!-- 儲值及娛樂 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🎮 娛樂儲值</span></div>
                             <div class="budget-card-inputs">
@@ -418,7 +391,6 @@
                             <div class="budget-status" id="st-儲值及娛樂">-</div>
                         </div>
 
-                        <!-- 狗勾 -->
                         <div class="budget-card">
                             <div class="budget-card-header"><span>🐶 狗勾</span></div>
                             <div class="budget-card-inputs">
@@ -428,7 +400,6 @@
                             <div class="budget-status" id="st-狗勾">-</div>
                         </div>
 
-                        <!-- 其他 -->
                         <div class="budget-card" style="grid-column: span 2;">
                             <div class="budget-card-header"><span>✨ 其他</span></div>
                             <div class="budget-card-inputs">
@@ -443,7 +414,6 @@
             </div>
         </div>
 
-        <!-- 📝 備忘錄 Page View -->
         <div id="page-memo" class="page-view">
             <div class="glass-panel text-center">
                 <div class="summary-title">📝 生活備忘錄 🌸</div>
@@ -457,13 +427,11 @@
                 </div>
 
                 <div id="memo-list" class="scrollable-content" style="margin-top: 8px;">
-                    <!-- 備忘錄動態繪製區 -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 🌸 固定底部導覽列 -->
     <nav class="fixed-nav-bar">
         <div id="nav-accounting" class="nav-link active" onclick="switchPage('accounting')">記帳首頁</div>
         <div id="nav-memo" class="nav-link" onclick="switchPage('memo')">備忘錄</div>
@@ -484,7 +452,6 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             
-            // 讀取本地預算
             fields.forEach(f => { 
                 let val = localStorage.getItem('budget_' + f);
                 if (val !== null && val !== undefined && val !== "" && val !== "0") {
@@ -496,14 +463,12 @@
             fetchCloudData(false);
             renderMemos();
 
-            // 🌸 檢查網址是否有帶 tab=memo 參數，有就直接切換到備忘錄頁面！
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('tab') === 'memo') {
                 switchPage('memo');
             }
         });
 
-        // 頁面切換
         function switchPage(page) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
@@ -517,14 +482,12 @@
             }
         }
 
-        // 儲存預算設定
         function saveBudget(category) {
             let val = document.getElementById('bg-' + category).value;
             localStorage.setItem('budget_' + category, val);
             checkBudgetBalance();
         }
 
-        // 從雲端讀取紀錄
         function fetchCloudData(alertMsg = false) {
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
                 .then(res => res.json())
@@ -540,7 +503,6 @@
                 });
         }
 
-        // 計算當月分類消費總額
         function calculateCategoryTotals() {
             let now = new Date();
             let currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -573,7 +535,6 @@
             checkBudgetBalance();
         }
 
-        // 檢查與更新預算剩餘狀況
         function checkBudgetBalance() {
             let totalBudget = 0;
             let totalSpent = 0;
@@ -603,7 +564,6 @@
                 }
             });
 
-            // 頂部總進度條
             let progressFill = document.getElementById('total-progress');
             if (totalBudget > 0) {
                 let pct = Math.min(100, Math.round((totalSpent / totalBudget) * 100));
@@ -613,7 +573,6 @@
             }
         }
 
-        // 新增記帳
         function addRecord() {
             let date = document.getElementById('tx-date').value;
             let category = document.getElementById('tx-cat').value;
@@ -649,7 +608,6 @@
             });
         }
 
-        // 備忘錄功能
         function getMemos() {
             return JSON.parse(localStorage.getItem('user_memos') || '[]');
         }
