@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>明細歷史 - 老公請查帳</title>
-    <link rel="stylesheet" href="style.css?v=8.0">
+    <title>老公請查帳 - 明細歷史</title>
+    <link rel="stylesheet" href="style.css?v=9.0">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
-    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="老公請查帳">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         * { box-sizing: border-box; }
         html, body {
@@ -44,81 +46,82 @@
             border-radius: 14px; 
             padding: 10px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
+            position: relative; 
             flex-shrink: 0;
         }
 
-        .list-panel {
+        .main-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 0;
-            padding-bottom: 0;
+            overflow: hidden;
         }
-
-        .text-center { text-align: center; }
 
         .filter-row {
             display: flex;
-            gap: 6px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
-        .filter-row input, .filter-row select {
+
+        .filter-row select, .filter-row input {
             flex: 1;
             padding: 6px 8px;
             border-radius: 8px;
             border: 1px solid #ffb6c1;
             font-size: 13px;
             background: #fff;
+            text-align: center;
         }
 
-        #records-list {
+        .records-list {
             flex: 1;
             overflow-y: auto;
-            margin-top: 8px;
-            padding-right: 2px;
-            padding-bottom: 10px;
             -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 2px;
         }
 
-        .record-item {
+        .record-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff;
-            padding: 8px 10px;
-            border-radius: 8px;
-            margin-bottom: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
 
-        .record-info {
-            flex: 1;
-            min-width: 0;
-            padding-right: 8px;
-        }
-
-        .record-date { font-size: 10px; color: #888; margin-left: 4px; }
-        .record-cat { font-size: 12px; font-weight: bold; color: #ff1493; }
-        
-        .record-note { 
-            font-size: 11px; 
-            color: #555; 
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 2px;
-        }
-
-        .record-right {
+        .record-left {
             display: flex;
-            align-items: center;
-            flex-shrink: 0;
-            white-space: nowrap;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .record-amt { font-size: 14px; font-weight: bold; color: #333; }
-        .del-btn { color: #d9534f; cursor: pointer; font-size: 14px; margin-left: 8px; padding: 2px 4px; }
+        .record-cat {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ff1493;
+        }
 
-        /* 🌸 ✨ 美化版固定底部選單：三鈕設計、文字絕對置中、消除底部白條 */
+        .record-item {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .record-date {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .record-amount {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
         .fixed-nav-bar { 
             position: fixed !important; 
             bottom: 0 !important; 
@@ -127,13 +130,13 @@
             width: 100% !important; 
             padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px) !important; 
             padding-top: 6px !important;
-            padding-left: 12px !important;
-            padding-right: 12px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
             background: #ffe4e1 !important; 
             display: flex !important; 
-            justify-content: center !important; 
+            justify-content: space-between !important; 
             align-items: center !important; 
-            gap: 8px !important;
+            gap: 6px !important;
             z-index: 999999 !important; 
         }
 
@@ -142,7 +145,6 @@
             color: #888; 
             font-size: 13px; 
             flex: 1; 
-            max-width: 150px;
             height: 40px;
             display: flex !important;
             align-items: center !important;
@@ -165,14 +167,14 @@
 <body>
 
     <div class="app-shell">
-        <div class="glass-panel text-center">
-            <div style="font-size:12px; font-weight:bold; color:#444;">🔍 篩選花費總計</div>
+        <div class="glass-panel text-center" style="text-align: center;">
+            <div style="font-size:11px; color:#666; font-weight:bold;">🔍 篩選花費總計</div>
             <div style="font-size:18px; font-weight:bold; color:#ff1493; margin-top:2px;">
                 NT$ <span id="filtered-total">0</span>
             </div>
         </div>
 
-        <div class="glass-panel list-panel">
+        <div class="glass-panel main-panel">
             <div class="filter-row">
                 <input type="month" id="filter-month" onchange="renderRecords()">
                 <select id="filter-cat" onchange="renderRecords()">
@@ -195,122 +197,92 @@
                 </select>
             </div>
 
-            <div id="records-list">
-                <div class="text-center" style="padding: 20px; color: #888; font-size: 12px;">
-                    正在更新資料中...🌸
-                </div>
+            <div class="records-list" id="records-container">
+                <div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">正在更新資料中...🌸</div>
             </div>
         </div>
     </div>
 
-    <!-- 🌸 底部導覽列：記帳首頁 ｜ 備忘錄 ｜ 明細歷史 -->
+    <!-- 底部三選項導覽列 -->
     <nav class="fixed-nav-bar">
         <a href="index.html" class="nav-link">記帳首頁</a>
-        <a href="index.html?tab=memo" class="nav-link">備忘錄</a>
+        <a href="memo.html" class="nav-link">備忘錄</a>
         <a href="details.html" class="nav-link active">明細歷史</a>
     </nav>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
         let rawRecords = [];
 
         window.addEventListener('load', () => {
-            let now = new Date();
-            let ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            document.getElementById('filter-month').value = ym;
-            fetchRecords();
+            let today = new Date();
+            let currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('filter-month').value = currentYearMonth;
+            
+            fetchCloudRecords();
         });
 
-        function fetchRecords() {
-            fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
+        function fetchCloudRecords() {
+            fetch(`${GAS_URL}?_t=${new Date().getTime()}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.records) {
                         rawRecords = data.records;
-                        renderRecords();
                     } else {
-                        document.getElementById('records-list').innerHTML = `<div class="text-center" style="padding:20px; color:#888;">尚無任何記錄🌸</div>`;
+                        rawRecords = [];
                     }
+                    renderRecords();
                 })
                 .catch(err => {
-                    document.getElementById('records-list').innerHTML = `<div class="text-center" style="padding:20px; color:#d9534f;">讀取失敗，請重新載入</div>`;
+                    document.getElementById('records-container').innerHTML = `<div style="text-align:center; color:#d9534f; font-size:13px; margin-top:20px;">讀取失敗，請檢查網路。</div>`;
                 });
         }
 
         function renderRecords() {
-            let selectedMonth = document.getElementById('filter-month').value;
+            let selectedMonth = document.getElementById('filter-month').value; // YYYY-MM 格式
             let selectedCat = document.getElementById('filter-cat').value;
-            let listElem = document.getElementById('records-list');
+            let container = document.getElementById('records-container');
             
-            let filtered = rawRecords.filter(r => {
-                if (!r.date) return false;
-                let dateStr = r.date.toString().replace(/\//g, '-');
-                if (dateStr.includes("#NUM!")) return false;
+            let total = 0;
+            let filteredHtml = "";
+
+            // 將記錄依照日期由新到舊排序
+            let sortedRecords = [...rawRecords].reverse();
+
+            sortedRecords.forEach(r => {
+                if (!r.date) return;
                 
-                let matchMonth = true;
-                if (selectedMonth) {
-                    matchMonth = dateStr.substring(0, 7) === selectedMonth;
+                // 格式化日期字串 (將 2026/08/05 轉為 2026-08-05)
+                let dateStr = String(r.date).replace(/\//g, '-').trim();
+                let monthStr = dateStr.substring(0, 7);
+                
+                // 檢查是否符合月份與分類篩選 (如果月選單沒選，顯示全部)
+                let matchMonth = !selectedMonth || monthStr === selectedMonth;
+                let matchCat = selectedCat === "ALL" || r.category === selectedCat;
+
+                if (matchMonth && matchCat) {
+                    let amt = Number(r.amount) || 0;
+                    total += amt;
+
+                    filteredHtml += `
+                        <div class="record-card">
+                            <div class="record-left">
+                                <div class="record-cat">${r.category || '未分類'}</div>
+                                <div class="record-item">${r.item ? r.item : '無備註'}</div>
+                                <div class="record-date">📅 ${dateStr}</div>
+                            </div>
+                            <div class="record-amount">$${amt.toLocaleString()}</div>
+                        </div>
+                    `;
                 }
-                
-                let matchCat = true;
-                if (selectedCat !== 'ALL') {
-                    matchCat = (r.category === selectedCat);
-                }
-                
-                return matchMonth && matchCat;
             });
 
-            let total = filtered.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
             document.getElementById('filtered-total').innerText = total.toLocaleString();
 
-            if (filtered.length === 0) {
-                listElem.innerHTML = `<div class="text-center" style="padding:20px; color:#888; font-size:12px;">這個月份沒有相關記錄喔✨</div>`;
-                return;
-            }
-
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            let html = '';
-            filtered.forEach((r) => {
-                let d = r.date ? r.date.toString().substring(0, 10) : '';
-                let itemJson = JSON.stringify(r).replace(/"/g, '&quot;');
-                html += `
-                    <div class="record-item">
-                        <div class="record-info">
-                            <div><span class="record-cat">${r.category || '未分類'}</span><span class="record-date">${d}</span></div>
-                            <div class="record-note">${r.item || '-'}</div>
-                        </div>
-                        <div class="record-right">
-                            <span class="record-amt">NT$ ${Number(r.amount || 0).toLocaleString()}</span>
-                            <span class="del-btn" onclick="deleteRecord(${itemJson})">🗑️</span>
-                        </div>
-                    </div>
-                `;
-            });
-            listElem.innerHTML = html;
-        }
-
-        function deleteRecord(recordObj) {
-            if (confirm(`確定要刪除「${recordObj.category || ''} $${recordObj.amount}」這筆記錄嗎？`)) {
-                fetch(GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ 
-                        action: "delete", 
-                        id: recordObj.id || "",
-                        date: recordObj.date || "",
-                        category: recordObj.category || "",
-                        item: recordObj.item || "",
-                        amount: recordObj.amount || 0
-                    })
-                })
-                .then(res => res.json())
-                .then(res => {
-                    alert(res.message || "已刪除！");
-                    fetchRecords();
-                })
-                .catch(err => {
-                    alert("刪除失敗，請再試一次");
-                });
+            if (filteredHtml === "") {
+                container.innerHTML = `<div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">這個月份沒有相關記錄喔✨</div>`;
+            } else {
+                container.innerHTML = filteredHtml;
             }
         }
     </script>
