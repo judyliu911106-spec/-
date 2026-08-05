@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>老公請查帳 - 備忘錄</title>
+    <link rel="stylesheet" href="style.css?v=9.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="老公請查帳">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background: #ffe4e1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
+        }
+
+        body { 
+            padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
+            padding-left: 8px;
+            padding-right: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-shell { 
+            max-width: 500px; 
+            width: 100%;
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            height: calc(100vh - env(safe-area-inset-top, 10px) - 65px - env(safe-area-inset-bottom, 10px));
+            gap: 8px; 
+        }
+
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.85); 
+            border-radius: 14px; 
+            padding: 12px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff1493;
+        }
+
+        .status-tag {
+            font-size: 10px;
+            color: #888;
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid #ffb6c1;
+        }
+
+        .memo-textarea {
+            width: 100%;
+            flex: 1;
+            border: 1px solid #ffb6c1;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            background: rgba(255, 255, 255, 0.95);
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .memo-textarea:focus {
+            border-color: #ff1493;
+            box-shadow: 0 0 4px rgba(255, 20, 147, 0.2);
+        }
+
+        .fixed-nav-bar { 
+            position: fixed !important; 
+            bottom: 0 !important; 
+            left: 0 !important; 
+            right: 0 !important;
+            width: 100% !important; 
+            padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px) !important; 
+            padding-top: 6px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+            background: #ffe4e1 !important; 
+            display: flex !important; 
+            justify-content: space-between !important; 
+            align-items: center !important; 
+            gap: 6px !important;
+            z-index: 999999 !important; 
+        }
+
+        .nav-link { 
+            text-decoration: none; 
+            color: #888; 
+            font-size: 13px; 
+            flex: 1; 
+            height: 40px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+        }
+
+        .nav-link.active { 
+            color: #ff1493; 
+            font-weight: bold; 
+            background: #fff0f5; 
+            border: 1px solid #ffb6c1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <div class="glass-panel">
+            <div class="panel-header">
+                <div class="panel-title">📝 隨手備忘錄</div>
+                <div class="status-tag" id="save-status">已儲存</div>
+            </div>
+            <textarea class="memo-textarea" id="memo-input" placeholder="在這裡輸入任何想記錄的事情... (會自動儲存於手機)" oninput="autoSaveMemo(this.value)"></textarea>
+        </div>
+    </div>
+
+    <!-- 底部三選項導覽列 -->
+    <nav class="fixed-nav-bar">
+        <a href="index.html" class="nav-link">記帳首頁</a>
+        <a href="memo.html" class="nav-link active">備忘錄</a>
+        <a href="details.html" class="nav-link">明細歷史</a>
+    </nav>
+
+    <script>
+        let timer = null;
+
+        window.addEventListener('load', () => {
+            let savedContent = localStorage.getItem('standalone_memo');
+            if (savedContent) {
+                document.getElementById('memo-input').value = savedContent;
+            }
+        });
+
+        function autoSaveMemo(val) {
+            document.getElementById('save-status').innerText = "儲存中...";
+            document.getElementById('save-status').style.color = "#ff1493";
+
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                localStorage.setItem('standalone_memo', val);
+                document.getElementById('save-status').innerText = "已儲存";
+                document.getElementById('save-status').style.color = "#888";
+            }, 500);
+        }
+    </script>
+</body>
+</html>
