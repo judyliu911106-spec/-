@@ -1,389 +1,333 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>老公請查帳</title>
-    <link rel="stylesheet" href="style.css?v=9.0">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="老公請查帳">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的記帳本</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+    
+    /* 導覽列 */
+    .nav-tabs {
+      display: flex;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 6px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 600;
+      color: #666;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: #4a90e2;
+      color: #ffffff;
+    }
 
-    <style>
-        * { box-sizing: border-box; }
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100vh;
-            background: #ffe4e1;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            overflow: hidden; /* 強制與 details.html 一樣不隨意滾動 */
-        }
+    /* 卡片通用樣式 */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      color: #333;
+    }
+    .card-subtitle {
+      margin: 0 0 16px 0;
+      font-size: 13px;
+      color: #888;
+    }
 
-        body { 
-            padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
-            padding-left: 8px;
-            padding-right: 8px;
-            display: flex;
-            flex-direction: column;
-        }
+    /* 橫向滾動分類選單 */
+    .category-scroll-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      scrollbar-width: none; /* Firefox */
+    }
+    .category-scroll-container::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+    .cat-chip {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      background: #f0f2f5;
+      border: 1px solid #e1e4e8;
+      border-radius: 20px;
+      font-size: 14px;
+      color: #444;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .cat-chip.selected {
+      background: #4a90e2;
+      color: #ffffff;
+      border-color: #4a90e2;
+    }
 
-        .app-shell { 
-            max-width: 500px; 
-            width: 100%;
-            margin: 0 auto; 
-            display: flex; 
-            flex-direction: column; 
-            height: calc(100vh - env(safe-area-inset-top, 10px) - 65px - env(safe-area-inset-bottom, 10px));
-            gap: 6px; 
-        }
+    /* 表單元件 */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: #4a90e2;
+    }
 
-        .glass-panel { 
-            background: rgba(255, 255, 255, 0.85); 
-            border-radius: 14px; 
-            padding: 6px 10px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
-            position: relative; 
-            flex-shrink: 0;
-        }
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
 
-        .main-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 0;
-        }
+    /* 備忘錄頁面專屬樣式（完美對齊卡片） */
+    .memo-input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .memo-input-group input {
+      flex: 1;
+    }
+    .memo-btn {
+      padding: 10px 16px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .memo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .memo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border-left: 4px solid #4a90e2;
+    }
+    .memo-item span {
+      font-size: 14px;
+      color: #333;
+      word-break: break-all;
+    }
+    .memo-del-btn {
+      background: none;
+      border: none;
+      color: #ff4d4f;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-        .text-center { text-align: center; }
-        
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
-        .dashboard-item { background: rgba(255, 255, 255, 0.95); padding: 4px; border-radius: 10px; text-align: center; }
-        .total-amount { font-size: 16px; font-weight: bold; color: #ff1493; }
-        .rem-amount { font-size: 16px; font-weight: bold; color: #2e8b57; }
-        .rem-over { color: #d9534f !important; }
-
-        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
-        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 3px 8px; border-radius: 8px; }
-        .budget-item input { width: 65px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 12px; }
-        
-        .daily-bar { 
-            margin-top: 4px; 
-            padding: 4px 8px; 
-            background: #fff; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            color: #444; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border: 1px solid #ffb6c1;
-        }
-        .daily-amount { color: #2e8b57; font-weight: bold; font-size: 13px; }
-
-        .budget-status-bar { margin-top: 4px; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; text-align: center; }
-        .bg-ok { background: #e8f5e9; color: #2e7d32; }
-        .bg-warn { background: #e3f2fd; color: #1565c0; }
-        .bg-error { background: #ffebee; color: #c62828; }
-
-        .input-row { display: flex; gap: 6px; margin-bottom: 4px; }
-        .input-row input { flex: 1; padding: 5px 8px; border-radius: 8px; border: 1px solid #ffb6c1; font-size: 12px; }
-        .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 3px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .cat-btn { padding: 4px 8px; background: #fff; border-radius: 8px; cursor: pointer; display: inline-block; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; }
-        .amount-display { margin: 2px 0; text-align: center; font-size: 11px; background: #fff; padding: 2px; border-radius: 6px; }
-        
-        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .key { background: #fff; padding: 6px 0; text-align: center; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-        .key:active { background: #ffebf0; }
-        
-        .submit-btn { 
-            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
-            color: white; 
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .refresh-btn {
-            position: absolute;
-            top: 5px;
-            right: 8px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ffb6c1;
-            border-radius: 6px;
-            padding: 2px 6px;
-            font-size: 10px;
-            color: #ff1493;
-            cursor: pointer;
-        }
-
-        /* 🌸 與 details.html 100% 相同的絕對定位導覽列 */
-        .fixed-nav-bar { 
-            position: fixed !important; 
-            bottom: 0 !important; 
-            left: 0 !important; 
-            right: 0 !important;
-            width: 100% !important; 
-            padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px) !important; 
-            padding-top: 6px !important;
-            padding-left: 12px !important;
-            padding-right: 12px !important;
-            background: #ffe4e1 !important; 
-            display: flex !important; 
-            justify-content: center !important; 
-            align-items: center !important; 
-            gap: 10px !important;
-            z-index: 999999 !important; 
-        }
-
-        .nav-link { 
-            text-decoration: none; 
-            color: #888; 
-            font-size: 13px; 
-            flex: 1; 
-            max-width: 220px;
-            height: 40px;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
-            border-radius: 12px;
-            background: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            transition: all 0.2s ease;
-        }
-
-        .nav-link.active { 
-            color: #ff1493; 
-            font-weight: bold; 
-            background: #fff0f5; 
-            border: 1px solid #ffb6c1;
-        }
-    </style>
+    /* 明細列表樣式 */
+    .record-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="app-shell">
-        <div class="glass-panel text-center">
-            <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div style="font-size:12px; font-weight:bold; color:#444;">🌸 本月收支概況</div>
-            
-            <div class="dashboard-grid">
-                <div class="dashboard-item">
-                    <div style="font-size:10px; color:#666; font-weight:bold;">本月累積花費</div>
-                    <div class="total-amount">NT$ <span id="month-total">0</span></div>
-                </div>
-                <div class="dashboard-item">
-                    <div style="font-size:10px; color:#666; font-weight:bold;">剩餘可用額度</div>
-                    <div class="rem-amount" id="rem-container">NT$ <span id="month-remaining">0</span></div>
-                </div>
-            </div>
-        </div>
+<div class="container">
+  <!-- 🌸 導覽列：首頁 ｜ 備忘錄 ｜ 明細 -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="btn-home" onclick="switchTab('home')">🏠 首頁</button>
+    <button class="tab-btn" id="btn-memo" onclick="switchTab('memo')">📝 備忘錄</button>
+    <button class="tab-btn" id="btn-records" onclick="switchTab('records')">📜 明細</button>
+  </div>
 
-        <div class="glass-panel">
-            <div style="font-size:11px; font-weight:bold; margin-bottom:3px; color:#555;">🎀 預算餘額分配</div>
-            <div class="budget-grid">
-                <div class="budget-item"><span style="font-weight:bold; color:#ff1493;">月薪</span><input type="number" id="bg-salary" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
-                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
-                <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
-                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
-                <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>其他</span><input type="number" id="bg-others" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
-            </div>
-            
-            <div id="budget-status" class="budget-status-bar bg-ok">
-                ✅ 預算試算計算中...
-            </div>
+  <!-- 1. 首頁 (記帳頁面) -->
+  <div id="home-page" class="tab-content">
+    <div class="card">
+      <h2 class="card-title">🌸 快速記帳</h2>
+      
+      <!-- 🌸 橫向選單：主食、點心、住宿、飲料、必要開銷、獅薩 -->
+      <label style="font-size:13px; color:#666; display:block; margin-bottom:8px;">選擇分類</label>
+      <div class="category-scroll-container" id="categoryChipContainer">
+        <div class="cat-chip selected" onclick="selectCategory('主食', this)">🍱 主食</div>
+        <div class="cat-chip" onclick="selectCategory('點心', this)">🍰 點心</div>
+        <div class="cat-chip" onclick="selectCategory('住宿', this)">🏨 住宿</div>
+        <div class="cat-chip" onclick="selectCategory('飲料', this)">🥤 飲料</div>
+        <div class="cat-chip" onclick="selectCategory('必要開銷', this)">📦 必要開銷</div>
+        <div class="cat-chip" onclick="selectCategory('獅薩', this)">🦁 獅薩</div>
+      </div>
 
-            <div class="daily-bar">
-                <span>📅 本月剩餘 <b id="rem-days" style="color:#ff1493;">0</b> 天，平均每日可用：</span>
-                <span class="daily-amount">NT$ <span id="daily-budget">0</span></span>
-            </div>
-        </div>
+      <div class="form-group">
+        <label>日期</label>
+        <input type="date" id="recordDate" class="form-control">
+      </div>
 
-        <div class="glass-panel main-panel">
-            <div class="input-row">
-                <input type="date" id="tx-date">
-                <input type="text" id="tx-item" placeholder="項目內容 (選填)">
-            </div>
-            
-            <div class="category-container" id="cat-container">
-                <div class="cat-btn" onclick="selectCat(this, '主食')">🍱 主食</div>
-                <div class="cat-btn" onclick="selectCat(this, '點心')">🍰 點心</div>
-                <div class="cat-btn" onclick="selectCat(this, '飲料')">🥤 飲料</div>
-                <div class="cat-btn" onclick="selectCat(this, '住宿')">🎀 住宿</div>
-                <div class="cat-btn" onclick="selectCat(this, '交通')">🚗 交通</div>
-                <div class="cat-btn" onclick="selectCat(this, '購物')">🛍️ 購物</div>
-                <div class="cat-btn" onclick="selectCat(this, '治裝')">👗 治裝</div>
-                <div class="cat-btn" onclick="selectCat(this, '電話及會員')">📱 電話會員</div>
-                <div class="cat-btn" onclick="selectCat(this, '醫療')">🏥 醫療</div>
-                <div class="cat-btn" onclick="selectCat(this, '保養美體')">💅 保養美體</div>
-                <div class="cat-btn" onclick="selectCat(this, '儲值及娛樂')">🎮 娛樂儲值</div>
-                <div class="cat-btn" onclick="selectCat(this, '必要開銷')">🛒 必要開銷</div>
-                <div class="cat-btn" onclick="selectCat(this, '獅薩')">🦁 獅薩</div>
-                <div class="cat-btn" onclick="selectCat(this, '狗勾')">🐶 狗勾</div>
-                <div class="cat-btn" onclick="selectCat(this, '其他')">✨ 其他</div>
-            </div>
+      <div class="form-group">
+        <label>項目 / 備註</label>
+        <input type="text" id="recordItem" class="form-control" placeholder="例如：拿鐵、房租...">
+      </div>
 
-            <div class="amount-display">
-                已選: <span id="selected-cat-text" style="color:#ff1493; font-weight:bold;">未選擇</span> | 
-                金額: <span style="color:#ff1493; font-weight:bold;">$</span><span id="tx-amount" style="color:#ff1493; font-weight:bold;">0</span>
-            </div>
-            
-            <div class="keyboard">
-                <div class="key" onclick="pressKey('1')">1</div><div class="key" onclick="pressKey('2')">2</div><div class="key" onclick="pressKey('3')">3</div>
-                <div class="key" onclick="pressKey('4')">4</div><div class="key" onclick="pressKey('5')">5</div><div class="key" onclick="pressKey('6')">6</div>
-                <div class="key" onclick="pressKey('7')">7</div><div class="key" onclick="pressKey('8')">8</div><div class="key" onclick="pressKey('9')">9</div>
-                <div class="key" style="color:#cc0000;" onclick="pressKey('C')">⌫</div><div class="key" onclick="pressKey('0')">0</div>
-                <div class="key submit-btn" onclick="submitRecord()">送出✨</div>
-            </div>
-        </div>
+      <div class="form-group">
+        <label>金額</label>
+        <input type="number" id="recordAmount" class="form-control" placeholder="0">
+      </div>
+
+      <button class="btn-submit" onclick="submitRecord()">儲存紀錄</button>
     </div>
+  </div>
 
-    <!-- 底部導覽列 -->
-    <nav class="fixed-nav-bar">
-        <a href="index.html" class="nav-link active">記帳首頁</a>
-        <a href="details.html" class="nav-link">明細歷史</a>
-    </nav>
+  <!-- 2. 備忘錄頁面 (精準插在中間) -->
+  <div id="memo-page" class="tab-content" style="display: none;">
+    <div class="card">
+      <h2 class="card-title">📝 隨手備忘錄</h2>
+      <p class="card-subtitle">記錄購物清單、預算提醒與個人事項</p>
+      
+      <div class="memo-input-group">
+        <input type="text" id="memoInput" class="form-control" placeholder="輸入備忘事項..." onkeypress="handleMemoKeyPress(event)">
+        <button class="memo-btn" onclick="addMemo()">新增</button>
+      </div>
 
-    <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
-        let currentAmount = "0";
-        let chosenCategory = "";
-        let currentMonthTotal = 0;
-        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'others'];
+      <ul id="memoList" class="memo-list">
+        <!-- 備忘列表會自動生成在這裡 -->
+      </ul>
+    </div>
+  </div>
 
-        function triggerVibration(type = "light") {
-            try { if (window.navigator && window.navigator.vibrate) { if (type === "light") window.navigator.vibrate(15); else if (type === "success") window.navigator.vibrate([40, 40, 40]); } } catch (e) {}
-        }
+  <!-- 3. 明細頁面 -->
+  <div id="records-page" class="tab-content" style="display: none;">
+    <div class="card">
+      <h2 class="card-title">📜 近期開銷明細</h2>
+      <div id="recordList">載入中...</div>
+    </div>
+  </div>
+</div>
 
-        window.addEventListener('load', () => {
-            document.getElementById('tx-date').valueAsDate = new Date();
-            
-            fields.forEach(f => { 
-                let val = localStorage.getItem('budget_' + f);
-                if (val !== null && val !== undefined && val !== "" && val !== "0") {
-                    document.getElementById('bg-' + f).value = val; 
-                }
-            });
-            
-            checkBudgetBalance();
-            fetchCloudData(false);
-        });
+<script>
+  let currentCategory = '主食';
+  let memos = JSON.parse(localStorage.getItem('my_memos')) || [];
 
-        function getRemainingDaysInMonth() {
-            let now = new Date();
-            let totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            let currentDay = now.getDate();
-            return (totalDays - currentDay) + 1;
-        }
+  // 初始化日期為今天
+  document.getElementById('recordDate').valueAsDate = new Date();
 
-        function checkBudgetBalance() {
-            let salary = Number(document.getElementById('bg-salary').value) || 0;
-            let spend = Number(document.getElementById('bg-spend').value) || 0;
-            
-            let allocSum = fields.reduce((sum, f) => {
-                if (f === 'salary') return sum;
-                return sum + (Number(document.getElementById('bg-' + f).value) || 0);
-            }, 0);
+  // 分頁切換功能
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-            let remaining = spend - currentMonthTotal;
-            let remElem = document.getElementById('month-remaining');
-            let remContainer = document.getElementById('rem-container');
-            remElem.innerText = remaining.toLocaleString();
-            
-            if (remaining < 0) {
-                remContainer.classList.add('rem-over');
-            } else {
-                remContainer.classList.remove('rem-over');
-            }
+    document.getElementById(tabName + '-page').style.display = 'block';
+    document.getElementById('btn-' + tabName).classList.add('active');
+  }
 
-            let remDays = getRemainingDaysInMonth();
-            document.getElementById('rem-days').innerText = remDays;
-            
-            let dailyBudget = remaining > 0 ? Math.floor(remaining / remDays) : 0;
-            document.getElementById('daily-budget').innerText = dailyBudget.toLocaleString();
+  // 分類選擇
+  function selectCategory(catName, element) {
+    currentCategory = catName;
+    document.querySelectorAll('.cat-chip').forEach(chip => chip.classList.remove('selected'));
+    element.classList.add('selected');
+  }
 
-            let statusElem = document.getElementById('budget-status');
-            let diff = salary - allocSum;
+  // 備忘錄邏輯
+  function renderMemos() {
+    const listEl = document.getElementById('memoList');
+    listEl.innerHTML = '';
+    
+    if (memos.length === 0) {
+      listEl.innerHTML = '<li style="color:#aaa; text-align:center; padding: 15px 0;">目前尚無任何備忘紀錄唷！✨</li>';
+      return;
+    }
 
-            if (diff === 0 && salary > 0) {
-                statusElem.className = "budget-status-bar bg-ok";
-                statusElem.innerText = "✅ 預算分配完美平衡！(100% 已分配)";
-            } else if (diff > 0) {
-                statusElem.className = "budget-status-bar bg-warn";
-                statusElem.innerText = `💡 還有 NT$ ${diff.toLocaleString()} 未分配完畢`;
-            } else if (diff < 0) {
-                statusElem.className = "budget-status-bar bg-error";
-                statusElem.innerText = `⚠️ 預算爆了！超過月薪 NT$ ${Math.abs(diff).toLocaleString()}`;
-            } else {
-                statusElem.className = "budget-status-bar bg-warn";
-                statusElem.innerText = "💡 請輸入月薪與分配項目";
-            }
-        }
+    memos.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'memo-item';
+      li.innerHTML = `
+        <span>📌 ${item}</span>
+        <button class="memo-del-btn" onclick="deleteMemo(${index})">🗑️</button>
+      `;
+      listEl.appendChild(li);
+    });
+  }
 
-        function fetchCloudData(isManual = false) {
-            if(isManual) triggerVibration("light");
-            
-            fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
-                .then(res => res.json())
-                .then(data => {
-                    let today = new Date();
-                    let currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-                    let total = 0;
-                    if (data && data.records) {
-                        total = data.records.reduce((sum, r) => {
-                            if (r.date) {
-                                let dateStr = r.date.toString();
-                                let amtStr = r.amount ? r.amount.toString() : "0";
-                                if (dateStr.includes("#NUM!") || amtStr.includes("#NUM!")) return sum;
-                                if (dateStr.replace(/\//g, '-').substring(0, 7) === currentYearMonth) {
-                                    let amt = Number(r.amount); return sum + (isNaN(amt) ? 0 : amt);
-                                }
-                            } return sum;
-                        }, 0);
-                    }
-                    currentMonthTotal = total;
-                    document.getElementById('month-total').innerText = total.toLocaleString();
-                    
-                    if (data && data.budgets) {
-                        fields.forEach(f => { 
-                            let cloudVal = Number(data.budgets[f]);
-                            if (!isNaN(cloudVal) && cloudVal > 0) { 
-                                document.getElementById('bg-' + f).value = cloudVal; 
-                                localStorage.setItem('budget_' + f, cloudVal); 
-                            } 
-                        });
-                    }
-                    
-                    checkBudgetBalance();
-                    if(isManual) alert("同步成功囉！✨");
-                }).catch(err => {
-                    if(isManual) alert("同步失敗，請檢查網路連線。");
-                });
-        }
+  function addMemo() {
+    const input = document.getElementById('memoInput');
+    const val = input.value.trim();
+    if (!val) return;
 
-        function selectCat(element, cat) { triggerVibration("light"); chosenCategory = cat; document.getElementById('selected-cat-text').innerText = cat; document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected')); element.classList.add('selected'); }
-        function pressKey(key) { triggerVibration("light"); if (key === 'C') { currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0"; } else { currentAmount = currentAmount === "0" ? key : currentAmount + key; } document.getElementById('tx-amount').innerText = Number(currentAmount).toLocaleString(); }
-        
-        function updateBudget(cat, val) { 
-            let amt = Number(val) || 0;
-            localStorage.setItem('budget_' + cat, amt); 
-            checkBudgetBalance();
-            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); 
-        }
+    memos.push(val);
+    localStorage.setItem('my_memos', JSON.stringify(memos));
+    input.value = '';
+    renderMemos();
+  }
 
-        function submitRecord() {
-            if (!chosenCategory || currentAmount === "0") { alert("請填妥分類與金額！"); return; }
-            fetch(GAS_URL, { method: "POST", body: JSON.stringify({ date: document.getElementById('tx-date').value, category: chosenCategory, item: document.getElementById('tx-item').value, amount: Number(currentAmount) }) })
-            .then(res => res.json()).then(res => { triggerVibration("success"); alert(res.message); location.reload(); });
-        }
-    </script>
+  function deleteMemo(index) {
+    memos.splice(index, 1);
+    localStorage.setItem('my_memos', JSON.stringify(memos));
+    renderMemos();
+  }
+
+  function handleMemoKeyPress(e) {
+    if (e.key === 'Enter') addMemo();
+  }
+
+  // 網頁啟動時載入備忘錄
+  window.onload = function() {
+    renderMemos();
+  };
+</script>
+
 </body>
 </html>
