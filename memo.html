@@ -140,10 +140,10 @@
     <div class="app-shell">
         <div class="glass-panel">
             <div class="panel-header">
-                <div class="panel-title">📝 隨手備忘錄</div>
-                <div class="status-tag" id="save-status">已儲存</div>
+                <div class="panel-title">📝 共享備忘錄</div>
+                <div class="status-tag" id="save-status">載入中...</div>
             </div>
-            <textarea class="memo-textarea" id="memo-input" placeholder="在這裡輸入任何想記錄的事情... (會自動儲存於手機)" oninput="autoSaveMemo(this.value)"></textarea>
+            <textarea class="memo-textarea" id="memo-input" placeholder="在這裡輸入任何想記錄的事情... (所有持有連結的人皆可即時同步檢視)" oninput="handleMemoInput(this.value)"></textarea>
         </div>
     </div>
 
@@ -155,25 +155,66 @@
     </nav>
 
     <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
         let timer = null;
 
         window.addEventListener('load', () => {
-            let savedContent = localStorage.getItem('standalone_memo');
-            if (savedContent) {
-                document.getElementById('memo-input').value = savedContent;
-            }
+            fetchMemoFromCloud();
         });
 
-        function autoSaveMemo(val) {
-            document.getElementById('save-status').innerText = "儲存中...";
-            document.getElementById('save-status').style.color = "#ff1493";
+        // 從試算表抓取備忘錄
+        function fetchMemoFromCloud() {
+            let statusElem = document.getElementById('save-status');
+            statusElem.innerText = "讀取雲端中...";
+            
+            fetch(`${GAS_URL}?action=getMemo&_t=${new Date().getTime()}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.memo !== undefined) {
+                        document.getElementById('memo-input').value = data.memo;
+                    }
+                    statusElem.innerText = "已與雲端同步";
+                    statusElem.style.color = "#888";
+                })
+                .catch(err => {
+                    statusElem.innerText = "讀取失敗";
+                    statusElem.style.color = "#d9534f";
+                });
+        }
+
+        // 當使用者輸入時，停止打字 1 秒後自動上傳到試算表
+        function handleMemoInput(val) {
+            let statusElem = document.getElementById('save-status');
+            statusElem.innerText = "編輯中...";
+            statusElem.style.color = "#ff1493";
 
             clearTimeout(timer);
             timer = setTimeout(() => {
-                localStorage.setItem('standalone_memo', val);
-                document.getElementById('save-status').innerText = "已儲存";
-                document.getElementById('save-status').style.color = "#888";
-            }, 500);
+                saveMemoToCloud(val);
+            }, 1000);
+        }
+
+        // 上傳備忘錄到雲端
+        function saveMemoToCloud(val) {
+            let statusElem = document.getElementById('save-status');
+            statusElem.innerText = "同步到雲端中...";
+
+            fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "saveMemo",
+                    memo: val
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                statusElem.innerText = "已儲存至雲端✨";
+                statusElem.style.color = "#2e8b57";
+            })
+            .catch(err => {
+                statusElem.innerText = "儲存失敗";
+                statusElem.style.color = "#d9534f";
+            });
         }
     </script>
 </body>
