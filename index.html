@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>老公請查帳</title>
+    <title>老公請查帳 - 記帳首頁</title>
     <link rel="stylesheet" href="style.css?v=9.0">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='url(%23bg)'/><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fff0f3'/><stop offset='100%' stop-color='%23ffb6c1'/></linearGradient><filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23ff1493' flood-opacity='0.15'/></filter></defs><g filter='url(%23shadow)' stroke='%23ff1493' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='%23ff69b4'><path d='M90,95 C75,80 40,75 45,95 C50,115 80,100 90,95 Z'/><path d='M90,95 C105,80 140,75 135,95 C130,115 100,100 90,95 Z'/><path d='M85,95 C80,120 70,140 60,145 M95,95 C100,120 110,140 120,145' stroke='%23ff1493' stroke-width='5' fill='none'/><circle cx='90' cy='95' r='10' fill='%23ff1493'/></g><path d='M135,45 L138,55 L148,58 L138,61 L135,71 L132,61 L122,58 L132,55 Z' fill='%23fff' opacity='0.9'/><path d='M48,125 L50,132 L57,134 L50,136 L48,143 L46,136 L39,134 L46,132 Z' fill='%23fff' opacity='0.8'/></svg>">
@@ -21,7 +21,7 @@
             background: #ffe4e1;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            overflow: hidden; /* 強制與 details.html 一樣不隨意滾動 */
+            overflow: hidden;
         }
 
         body { 
@@ -92,19 +92,6 @@
 
         .input-row { display: flex; gap: 6px; margin-bottom: 4px; }
         .input-row input { flex: 1; padding: 5px 8px; border-radius: 8px; border: 1px solid #ffb6c1; font-size: 12px; }
-        
-        /* 備忘錄樣式 */
-        .memo-row { margin-bottom: 4px; }
-        .memo-row textarea { 
-            width: 100%; 
-            height: 36px; 
-            padding: 4px 8px; 
-            border-radius: 8px; 
-            border: 1px solid #ffb6c1; 
-            font-size: 11px; 
-            resize: none; 
-            font-family: inherit;
-        }
 
         .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 3px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
         .cat-btn { padding: 4px 8px; background: #fff; border-radius: 8px; cursor: pointer; display: inline-block; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
@@ -137,7 +124,7 @@
             cursor: pointer;
         }
 
-        /* 🌸 與 details.html 100% 相同的絕對定位導覽列 */
+        /* 🌸 底部三選項導覽列 */
         .fixed-nav-bar { 
             position: fixed !important; 
             bottom: 0 !important; 
@@ -146,13 +133,13 @@
             width: 100% !important; 
             padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px) !important; 
             padding-top: 6px !important;
-            padding-left: 12px !important;
-            padding-right: 12px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
             background: #ffe4e1 !important; 
             display: flex !important; 
-            justify-content: center !important; 
+            justify-content: space-between !important; 
             align-items: center !important; 
-            gap: 10px !important;
+            gap: 6px !important;
             z-index: 999999 !important; 
         }
 
@@ -161,7 +148,6 @@
             color: #888; 
             font-size: 13px; 
             flex: 1; 
-            max-width: 220px;
             height: 40px;
             display: flex !important;
             align-items: center !important;
@@ -226,13 +212,8 @@
                 <input type="date" id="tx-date">
                 <input type="text" id="tx-item" placeholder="項目內容 (選填)">
             </div>
-
-            <!-- 📝 備忘錄區域 -->
-            <div class="memo-row">
-                <textarea id="tx-memo" placeholder="📝 備忘錄 / 筆記 (會自動儲存)" oninput="saveMemo(this.value)"></textarea>
-            </div>
             
-            <!-- 🏷️ 分類選單（已新增 🥤飲料、📦必要開銷、🦁獅薩） -->
+            <!-- 🏷️ 橫向分類選單 -->
             <div class="category-container" id="cat-container">
                 <div class="cat-btn" onclick="selectCat(this, '主食')">🍱 主食</div>
                 <div class="cat-btn" onclick="selectCat(this, '點心')">🍰 點心</div>
@@ -266,9 +247,10 @@
         </div>
     </div>
 
-    <!-- 底部導覽列 -->
+    <!-- 底部三選項導覽列 -->
     <nav class="fixed-nav-bar">
         <a href="index.html" class="nav-link active">記帳首頁</a>
+        <a href="memo.html" class="nav-link">備忘錄</a>
         <a href="details.html" class="nav-link">明細歷史</a>
     </nav>
 
@@ -286,28 +268,16 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             
-            // 讀取預算
             fields.forEach(f => { 
                 let val = localStorage.getItem('budget_' + f);
                 if (val !== null && val !== undefined && val !== "" && val !== "0") {
                     document.getElementById('bg-' + f).value = val; 
                 }
             });
-
-            // 讀取上次留下的備忘錄內容
-            let savedMemo = localStorage.getItem('app_memo');
-            if (savedMemo) {
-                document.getElementById('tx-memo').value = savedMemo;
-            }
             
             checkBudgetBalance();
             fetchCloudData(false);
         });
-
-        // 儲存備忘錄
-        function saveMemo(val) {
-            localStorage.setItem('app_memo', val);
-        }
 
         function getRemainingDaysInMonth() {
             let now = new Date();
@@ -413,26 +383,8 @@
 
         function submitRecord() {
             if (!chosenCategory || currentAmount === "0") { alert("請填妥分類與金額！"); return; }
-            
-            // 取得備忘錄與項目內容
-            let itemVal = document.getElementById('tx-item').value;
-            let memoVal = document.getElementById('tx-memo').value;
-
-            fetch(GAS_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ 
-                    date: document.getElementById('tx-date').value, 
-                    category: chosenCategory, 
-                    item: itemVal, 
-                    memo: memoVal,
-                    amount: Number(currentAmount) 
-                }) 
-            })
-            .then(res => res.json()).then(res => { 
-                triggerVibration("success"); 
-                alert(res.message); 
-                location.reload(); 
-            });
+            fetch(GAS_URL, { method: "POST", body: JSON.stringify({ date: document.getElementById('tx-date').value, category: chosenCategory, item: document.getElementById('tx-item').value, amount: Number(currentAmount) }) })
+            .then(res => res.json()).then(res => { triggerVibration("success"); alert(res.message); location.reload(); });
         }
     </script>
 </body>
