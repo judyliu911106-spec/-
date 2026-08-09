@@ -102,6 +102,11 @@
         .key { background: #fff; padding: 6px 0; text-align: center; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
         .key:active { background: #ffebf0; }
         
+        /* 拆分雙按鍵容器 */
+        .split-key-container { display: flex; gap: 4px; }
+        .split-key { flex: 1; background: #fff; padding: 6px 0; text-align: center; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .split-key:active { background: #ffebf0; }
+
         .submit-btn { 
             background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
             color: white; 
@@ -124,7 +129,6 @@
             cursor: pointer;
         }
 
-        /* 🌸 底部三選項導覽列 */
         .fixed-nav-bar { 
             position: fixed !important; 
             bottom: 0 !important; 
@@ -213,7 +217,6 @@
                 <input type="text" id="tx-item" placeholder="項目內容 (選填)">
             </div>
             
-            <!-- 🏷️ 橫向分類選單 -->
             <div class="category-container" id="cat-container">
                 <div class="cat-btn" onclick="selectCat(this, '主食')">🍱 主食</div>
                 <div class="cat-btn" onclick="selectCat(this, '點心')">🍰 點心</div>
@@ -229,6 +232,7 @@
                 <div class="cat-btn" onclick="selectCat(this, '保養美體')">💅 保養美體</div>
                 <div class="cat-btn" onclick="selectCat(this, '儲值及娛樂')">🎮 娛樂儲值</div>
                 <div class="cat-btn" onclick="selectCat(this, '狗勾')">🐶 狗勾</div>
+                <div class="cat-btn" onclick="selectCat(this, '贊助')">🎁 贊助</div>
                 <div class="cat-btn" onclick="selectCat(this, '其他')">✨ 其他</div>
             </div>
 
@@ -241,7 +245,14 @@
                 <div class="key" onclick="pressKey('1')">1</div><div class="key" onclick="pressKey('2')">2</div><div class="key" onclick="pressKey('3')">3</div>
                 <div class="key" onclick="pressKey('4')">4</div><div class="key" onclick="pressKey('5')">5</div><div class="key" onclick="pressKey('6')">6</div>
                 <div class="key" onclick="pressKey('7')">7</div><div class="key" onclick="pressKey('8')">8</div><div class="key" onclick="pressKey('9')">9</div>
-                <div class="key" style="color:#cc0000;" onclick="pressKey('C')">⌫</div><div class="key" onclick="pressKey('0')">0</div>
+                
+                <!-- 左下角一分為二：減號(-)鍵 與 刪除(⌫)鍵 -->
+                <div class="split-key-container">
+                    <div class="split-key" style="color:#ff1493;" onclick="pressKey('-')">-</div>
+                    <div class="split-key" style="color:#cc0000;" onclick="pressKey('C')">⌫</div>
+                </div>
+                
+                <div class="key" onclick="pressKey('0')">0</div>
                 <div class="key submit-btn" onclick="submitRecord()">送出✨</div>
             </div>
         </div>
@@ -371,8 +382,54 @@
                 });
         }
 
-        function selectCat(element, cat) { triggerVibration("light"); chosenCategory = cat; document.getElementById('selected-cat-text').innerText = cat; document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected')); element.classList.add('selected'); }
-        function pressKey(key) { triggerVibration("light"); if (key === 'C') { currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0"; } else { currentAmount = currentAmount === "0" ? key : currentAmount + key; } document.getElementById('tx-amount').innerText = Number(currentAmount).toLocaleString(); }
+        function selectCat(element, cat) { 
+            triggerVibration("light"); 
+            chosenCategory = cat; 
+            document.getElementById('selected-cat-text').innerText = cat; 
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected')); 
+            element.classList.add('selected'); 
+        }
+
+        // 鍵盤輸入邏輯 (支援按 '-' 開頭跑出減號)
+        function pressKey(key) { 
+            triggerVibration("light"); 
+            if (key === 'C') { 
+                if (currentAmount.length > 1) {
+                    currentAmount = currentAmount.slice(0, -1);
+                    if (currentAmount === "-") currentAmount = "0";
+                } else {
+                    currentAmount = "0";
+                }
+            } else if (key === '-') {
+                // 如果已經有減號就移除，沒有就加在最前面
+                if (currentAmount.startsWith('-')) {
+                    currentAmount = currentAmount.substring(1);
+                    if (currentAmount === "") currentAmount = "0";
+                } else {
+                    if (currentAmount === "0") {
+                        currentAmount = "-";
+                    } else {
+                        currentAmount = "-" + currentAmount;
+                    }
+                }
+            } else { 
+                if (currentAmount === "0") {
+                    currentAmount = key;
+                } else if (currentAmount === "-") {
+                    currentAmount = "-" + key;
+                } else {
+                    currentAmount = currentAmount + key;
+                }
+            } 
+            
+            // 畫面顯示處理
+            if (currentAmount === "-") {
+                document.getElementById('tx-amount').innerText = "-0";
+            } else {
+                let num = Number(currentAmount);
+                document.getElementById('tx-amount').innerText = isNaN(num) ? "0" : num.toLocaleString(); 
+            }
+        }
         
         function updateBudget(cat, val) { 
             let amt = Number(val) || 0;
@@ -382,9 +439,26 @@
         }
 
         function submitRecord() {
-            if (!chosenCategory || currentAmount === "0") { alert("請填妥分類與金額！"); return; }
-            fetch(GAS_URL, { method: "POST", body: JSON.stringify({ date: document.getElementById('tx-date').value, category: chosenCategory, item: document.getElementById('tx-item').value, amount: Number(currentAmount) }) })
-            .then(res => res.json()).then(res => { triggerVibration("success"); alert(res.message); location.reload(); });
+            let finalAmt = Number(currentAmount);
+            if (!chosenCategory || isNaN(finalAmt) || finalAmt === 0) { 
+                alert("請填妥分類與金額！"); 
+                return; 
+            }
+            
+            fetch(GAS_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    date: document.getElementById('tx-date').value, 
+                    category: chosenCategory, 
+                    item: document.getElementById('tx-item').value, 
+                    amount: finalAmt 
+                }) 
+            })
+            .then(res => res.json()).then(res => { 
+                triggerVibration("success"); 
+                alert(res.message); 
+                location.reload(); 
+            });
         }
     </script>
 </body>
