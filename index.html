@@ -198,7 +198,8 @@
                 <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
                 <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
                 <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>餐費+車票</span><input type="number" id="bg-food_ticket" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
+                <!-- 修正點：將 updateBudget('others', ...) 修正為 updateBudget('food_ticket', ...) -->
+                <div class="budget-item"><span>餐費+車票</span><input type="number" id="bg-food_ticket" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('food_ticket', this.value)"></div>
             </div>
             
             <div id="budget-status" class="budget-status-bar bg-ok">
@@ -271,7 +272,7 @@
         let chosenCategory = "";
         let currentMonthTotal = 0;
         
-        // 確保這裏的清單與您試算表 Budgets 的 A 欄一模一樣
+        // 預算 key 清單，與試算表 Budgets 的 A 欄一模一樣
         const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food_ticket'];
 
         function triggerVibration(type = "light") {
