@@ -433,16 +433,26 @@
             }
         }
         
-        // 當使用者輸入預算時：立刻存本地 + 強制同步到試算表
+        // 當使用者輸入預算時：立刻存本地 + 使用 POST 穩定寫入試算表
         function updateBudget(cat, val) { 
             let amt = Number(val) || 0;
             localStorage.setItem('budget_' + cat, amt); 
             checkBudgetBalance();
             
-            // 使用 mode: 'no-cors' 確保請求 100% 打出去不被瀏覽器攔截
-            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`, { mode: 'no-cors' })
-            .then(() => {
-                console.log(`[預算更新成功] ${cat}: ${amt}`);
+            fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "updateBudget",
+                    category: cat,
+                    amount: amt
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(`[預算同步成功] ${cat}: ${amt}`);
+            })
+            .catch(err => {
+                console.error("預算同步失敗:", err);
             });
         }
 
