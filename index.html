@@ -198,7 +198,7 @@
                 <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
                 <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
                 <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>餐費+車票</span><input type="number" id="bg-others" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
+                <div class="budget-item"><span>餐費+車票</span><input type="number" id="bg-food_ticket" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
             </div>
             
             <div id="budget-status" class="budget-status-bar bg-ok">
@@ -270,7 +270,7 @@
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
-        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'others'];
+        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food_ticket'];
 
         function triggerVibration(type = "light") {
             try { if (window.navigator && window.navigator.vibrate) { if (type === "light") window.navigator.vibrate(15); else if (type === "success") window.navigator.vibrate([40, 40, 40]); } } catch (e) {}
@@ -301,11 +301,13 @@
             let salary = Number(document.getElementById('bg-salary').value) || 0;
             let spend = Number(document.getElementById('bg-spend').value) || 0;
             
+            // 計算除了月薪之外的所有已分配項目總和
             let allocSum = fields.reduce((sum, f) => {
                 if (f === 'salary') return sum;
                 return sum + (Number(document.getElementById('bg-' + f).value) || 0);
             }, 0);
 
+            // 剩餘可用額度 = 可花費金額 - 本月已累積花費
             let remaining = spend - currentMonthTotal;
             let remElem = document.getElementById('month-remaining');
             let remContainer = document.getElementById('rem-container');
@@ -323,6 +325,7 @@
             let dailyBudget = remaining > 0 ? Math.floor(remaining / remDays) : 0;
             document.getElementById('daily-budget').innerText = dailyBudget.toLocaleString();
 
+            // 提示月薪與所有分配項目的平衡狀態
             let statusElem = document.getElementById('budget-status');
             let diff = salary - allocSum;
 
