@@ -26,7 +26,22 @@
             background: rgba(255, 255, 255, 0.85); border-radius: 14px; padding: 10px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex: 1; display: flex; flex-direction: column; overflow: hidden;
         }
-        .title { text-align: center; font-size: 13px; font-weight: bold; color: #444; margin-bottom: 8px; }
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .title { font-size: 13px; font-weight: bold; color: #444; margin: 0; }
+        .filter-select {
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid #ffb6c1;
+            background: #ffffff;
+            font-size: 11px;
+            color: #333;
+            outline: none;
+        }
         .record-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
         .record-item {
             background: #ffffff; padding: 8px 10px; border-radius: 8px;
@@ -60,7 +75,18 @@
 <body>
     <div class="app-shell">
         <div class="glass-panel">
-            <div class="title">📜 歷史記帳明細</div>
+            <div class="header-area">
+                <div class="title">📜 歷史記帳明細</div>
+                <!-- 🔍 類別篩選器 -->
+                <select id="category-filter" class="filter-select" onchange="renderRecords()">
+                    <option value="all">全部類別</option>
+                    <option value="美妝">美妝</option>
+                    <option value="旅遊">旅遊</option>
+                    <option value="餐費">餐費</option>
+                    <option value="車票">車票</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
             <div class="record-list" id="record-container">
                 <div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">載入中...</div>
             </div>
@@ -75,6 +101,7 @@
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec";
+        let rawRecords = [];
 
         window.addEventListener('load', loadData);
 
@@ -82,28 +109,44 @@
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
                 .then(res => res.json())
                 .then(data => {
-                    let container = document.getElementById('record-container');
-                    container.innerHTML = "";
-                    if (data && data.records && data.records.length > 0) {
-                        data.records.slice().reverse().forEach(r => {
-                            let itemHtml = `
-                                <div class="record-item">
-                                    <div class="record-info">
-                                        <div class="record-cat">${r.category || "未分類"} ${r.item ? '- ' + r.item : ''}</div>
-                                        <div class="record-detail">${r.date ? r.date.toString().substring(0,10) : ''}</div>
-                                    </div>
-                                    <div class="right-area">
-                                        <div class="record-amount">NT$ ${Number(r.amount).toLocaleString()}</div>
-                                        <button class="delete-btn" onclick="deleteRecord(${r.rowIndex})">刪除</button>
-                                    </div>
-                                </div>
-                            `;
-                            container.innerHTML += itemHtml;
-                        });
+                    if (data && data.records) {
+                        rawRecords = data.records;
+                        renderRecords();
                     } else {
-                        container.innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">目前尚無紀錄喔！</div>`;
+                        document.getElementById('record-container').innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">目前尚無紀錄喔！</div>`;
                     }
                 });
+        }
+
+        function renderRecords() {
+            let container = document.getElementById('record-container');
+            let selectedCat = document.getElementById('category-filter').value;
+            container.innerHTML = "";
+
+            let filtered = rawRecords.filter(r => {
+                if (selectedCat === "all") return true;
+                return r.category === selectedCat;
+            });
+
+            if (filtered.length > 0) {
+                filtered.slice().reverse().forEach(r => {
+                    let itemHtml = `
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-cat">${r.category || "未分類"} ${r.item ? '- ' + r.item : ''}</div>
+                                <div class="record-detail">${r.date ? r.date.toString().substring(0,10) : ''}</div>
+                            </div>
+                            <div class="right-area">
+                                <div class="record-amount">NT$ ${Number(r.amount).toLocaleString()}</div>
+                                <button class="delete-btn" onclick="deleteRecord(${r.rowIndex})">刪除</button>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += itemHtml;
+                });
+            } else {
+                container.innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">沒有此類別的紀錄喔！</div>`;
+            }
         }
 
         function deleteRecord(rowIndex) {
