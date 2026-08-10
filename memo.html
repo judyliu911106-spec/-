@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳 - 備忘錄</title>
-    <link rel="stylesheet" href="style.css?v=9.0">
+    <link rel="stylesheet" href="style.css?v=10.0">
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="老公請查帳">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='42' fill='url(%23bg-grad)'/><defs><linearGradient id='bg-grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ffe5ec'/><stop offset='100%' stop-color='%23ffb3c6'/></linearGradient><linearGradient id='heart-grad' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='%23ff4d6d'/><stop offset='100%' stop-color='%23c9184a'/></linearGradient><filter id='drop-shadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='6' stdDeviation='6' flood-color='%23ff0054' flood-opacity='0.25'/></filter></defs><g filter='url(%23drop-shadow)'><path d='M90,145 C90,145 35,110 35,68 C35,45 52,32 72,32 C83,32 90,40 90,40 C90,40 97,32 108,32 C128,32 145,45 145,68 C145,110 90,145 90,145 Z' fill='url(%23heart-grad)'/></g><path d='M50,60 C50,48 60,42 70,42' stroke='%23ffffff' stroke-width='4' stroke-linecap='round' fill='none' opacity='0.7'/><path d='M138,38 L141,46 L149,49 L141,52 L138,60 L135,52 L127,49 L135,46 Z' fill='%23ffffff' opacity='0.9'/><path d='M42,128 L44,133 L49,135 L44,137 L42,142 L40,137 L35,135 L40,133 Z' fill='#ffffff' opacity='0.85'/></svg>">
+    
     <style>
         * { box-sizing: border-box; }
         html, body {
@@ -24,7 +22,7 @@
         }
 
         body { 
-            padding-top: calc(env(safe-area-inset-top, 10px) + 2px);
+            padding-top: calc(env(safe-area-inset-top, 8px) + 2px);
             padding-left: 8px;
             padding-right: 8px;
             display: flex;
@@ -37,60 +35,53 @@
             margin: 0 auto; 
             display: flex; 
             flex-direction: column; 
-            height: calc(100vh - env(safe-area-inset-top, 10px) - 65px - env(safe-area-inset-bottom, 10px));
-            gap: 8px; 
+            height: calc(100vh - env(safe-area-inset-top, 8px) - 52px - env(safe-area-inset-bottom, 0px));
+            gap: 6px; 
         }
 
         .glass-panel { 
             background: rgba(255, 255, 255, 0.85); 
             border-radius: 14px; 
-            padding: 12px; 
+            padding: 10px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
+            flex: 1;
             display: flex;
             flex-direction: column;
-            flex: 1;
         }
 
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .title {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #444;
             margin-bottom: 8px;
         }
 
-        .panel-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ff1493;
-        }
-
-        .status-tag {
-            font-size: 10px;
-            color: #888;
-            background: #fff;
-            padding: 2px 6px;
-            border-radius: 6px;
-            border: 1px solid #ffb6c1;
-        }
-
-        .memo-textarea {
+        textarea {
             width: 100%;
             flex: 1;
             border: 1px solid #ffb6c1;
             border-radius: 10px;
             padding: 10px;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-            background: rgba(255, 255, 255, 0.95);
+            font-size: 13px;
             resize: none;
             outline: none;
-            font-family: inherit;
+            background: #ffffff;
+            color: #333;
+            line-height: 1.5;
         }
 
-        .memo-textarea:focus {
-            border-color: #ff1493;
-            box-shadow: 0 0 4px rgba(255, 20, 147, 0.2);
+        .save-btn {
+            margin-top: 8px;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .fixed-nav-bar { 
@@ -99,8 +90,8 @@
             left: 0 !important; 
             right: 0 !important;
             width: 100% !important; 
-            padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px) !important; 
-            padding-top: 6px !important;
+            padding-bottom: calc(env(safe-area-inset-bottom, 2px) + 2px) !important; 
+            padding-top: 3px !important;
             padding-left: 8px !important;
             padding-right: 8px !important;
             background: #ffe4e1 !important; 
@@ -114,16 +105,16 @@
         .nav-link { 
             text-decoration: none; 
             color: #888; 
-            font-size: 13px; 
+            font-size: 12px; 
             flex: 1; 
-            height: 40px;
+            height: 36px;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             text-align: center !important;
-            border-radius: 12px;
+            border-radius: 10px;
             background: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
             transition: all 0.2s ease;
         }
 
@@ -139,11 +130,9 @@
 
     <div class="app-shell">
         <div class="glass-panel">
-            <div class="panel-header">
-                <div class="panel-title">📝 共享備忘錄</div>
-                <div class="status-tag" id="save-status">載入中...</div>
-            </div>
-            <textarea class="memo-textarea" id="memo-input" placeholder="在這裡輸入任何想記錄的事情... (所有持有連結的人皆可即時同步檢視)" oninput="handleMemoInput(this.value)"></textarea>
+            <div class="title">📝 隨手備忘錄</div>
+            <textarea id="memo-input" placeholder="在這裡輸入想要記錄的事情..."></textarea>
+            <button class="save-btn" onclick="saveMemo()">儲存備忘錄✨</button>
         </div>
     </div>
 
@@ -155,66 +144,15 @@
     </nav>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
-        let timer = null;
-
         window.addEventListener('load', () => {
-            fetchMemoFromCloud();
+            let savedMemo = localStorage.getItem('user_memo') || "";
+            document.getElementById('memo-input').value = savedMemo;
         });
 
-        // 從試算表抓取備忘錄
-        function fetchMemoFromCloud() {
-            let statusElem = document.getElementById('save-status');
-            statusElem.innerText = "讀取雲端中...";
-            
-            fetch(`${GAS_URL}?action=getMemo&_t=${new Date().getTime()}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.memo !== undefined) {
-                        document.getElementById('memo-input').value = data.memo;
-                    }
-                    statusElem.innerText = "已與雲端同步";
-                    statusElem.style.color = "#888";
-                })
-                .catch(err => {
-                    statusElem.innerText = "讀取失敗";
-                    statusElem.style.color = "#d9534f";
-                });
-        }
-
-        // 當使用者輸入時，停止打字 1 秒後自動上傳到試算表
-        function handleMemoInput(val) {
-            let statusElem = document.getElementById('save-status');
-            statusElem.innerText = "編輯中...";
-            statusElem.style.color = "#ff1493";
-
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                saveMemoToCloud(val);
-            }, 1000);
-        }
-
-        // 上傳備忘錄到雲端
-        function saveMemoToCloud(val) {
-            let statusElem = document.getElementById('save-status');
-            statusElem.innerText = "同步到雲端中...";
-
-            fetch(GAS_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "saveMemo",
-                    memo: val
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                statusElem.innerText = "已儲存至雲端✨";
-                statusElem.style.color = "#2e8b57";
-            })
-            .catch(err => {
-                statusElem.innerText = "儲存失敗";
-                statusElem.style.color = "#d9534f";
-            });
+        function saveMemo() {
+            let val = document.getElementById('memo-input').value;
+            localStorage.setItem('user_memo', val);
+            alert("備忘錄已儲存！✨");
         }
     </script>
 </body>
