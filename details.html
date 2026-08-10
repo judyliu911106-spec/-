@@ -77,16 +77,21 @@
         <div class="glass-panel">
             <div class="header-area">
                 <div class="title">📜 歷史記帳明細</div>
-                <!-- 🛒 消費項目篩選器 -->
+                <!-- 🛒 與記帳首頁按鈕一模一樣的項目篩選器 -->
                 <select id="category-filter" class="filter-select" onchange="renderRecords()">
                     <option value="all">全部項目</option>
-                    <option value="飲食">飲食</option>
-                    <option value="日常">日常</option>
-                    <option value="交通">交通</option>
-                    <option value="娛樂">娛樂</option>
-                    <option value="購物">購物</option>
-                    <option value="固定支出">固定支出</option>
-                    <option value="其他">其他</option>
+                    <option value="主食">🍱 主食</option>
+                    <option value="飲料">🥤 飲料</option>
+                    <option value="點心">🍰 點心</option>
+                    <option value="日用品">🧻 日用品</option>
+                    <option value="美妝保養">💄 美妝保養</option>
+                    <option value="服飾鞋包">👗 服飾鞋包</option>
+                    <option value="大眾運輸">🚌 大眾運輸</option>
+                    <option value="加油保養">⛽ 加油保養</option>
+                    <option value="娛樂休閒">🎮 娛樂休閒</option>
+                    <option value="醫療保健">💊 醫療保健</option>
+                    <option value="固定開銷">🏠 固定開銷</option>
+                    <option value="其他費用">✨ 其他費用</option>
                 </select>
             </div>
             <div class="record-list" id="record-container">
@@ -127,7 +132,8 @@
 
             let filtered = rawRecords.filter(r => {
                 if (selectedCat === "all") return true;
-                return r.category === selectedCat;
+                // 模糊比對 category 欄位（例如：點擊「主食」時可比對「主食」或「🍱 主食」）
+                return r.category && r.category.includes(selectedCat);
             });
 
             if (filtered.length > 0) {
