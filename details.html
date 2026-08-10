@@ -77,13 +77,15 @@
         <div class="glass-panel">
             <div class="header-area">
                 <div class="title">📜 歷史記帳明細</div>
-                <!-- 🔍 類別篩選器 -->
+                <!-- 🛒 消費項目篩選器 -->
                 <select id="category-filter" class="filter-select" onchange="renderRecords()">
-                    <option value="all">全部類別</option>
-                    <option value="美妝">美妝</option>
-                    <option value="旅遊">旅遊</option>
-                    <option value="餐費">餐費</option>
-                    <option value="車票">車票</option>
+                    <option value="all">全部項目</option>
+                    <option value="飲食">飲食</option>
+                    <option value="日常">日常</option>
+                    <option value="交通">交通</option>
+                    <option value="娛樂">娛樂</option>
+                    <option value="購物">購物</option>
+                    <option value="固定支出">固定支出</option>
                     <option value="其他">其他</option>
                 </select>
             </div>
@@ -145,7 +147,7 @@
                     container.innerHTML += itemHtml;
                 });
             } else {
-                container.innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">沒有此類別的紀錄喔！</div>`;
+                container.innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">沒有此項目的紀錄喔！</div>`;
             }
         }
 
