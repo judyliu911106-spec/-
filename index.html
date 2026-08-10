@@ -270,6 +270,8 @@
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
+        
+        // 確保這裏的清單與您試算表 Budgets 的 A 欄一模一樣
         const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food_ticket'];
 
         function triggerVibration(type = "light") {
@@ -279,10 +281,12 @@
         window.addEventListener('load', () => {
             document.getElementById('tx-date').valueAsDate = new Date();
             
+            // 優先讀取本地暫存
             fields.forEach(f => { 
                 let val = localStorage.getItem('budget_' + f);
-                if (val !== null && val !== undefined && val !== "" && val !== "0") {
-                    document.getElementById('bg-' + f).value = val; 
+                let elem = document.getElementById('bg-' + f);
+                if (elem && val !== null && val !== undefined) {
+                    elem.value = val; 
                 }
             });
             
@@ -298,49 +302,50 @@
         }
 
         function checkBudgetBalance() {
-            let salary = Number(document.getElementById('bg-salary').value) || 0;
-            let spend = Number(document.getElementById('bg-spend').value) || 0;
+            let salary = Number(document.getElementById('bg-salary')?.value) || 0;
+            let spend = Number(document.getElementById('bg-spend')?.value) || 0;
             
-            // 計算除了月薪之外的所有已分配項目總和
             let allocSum = fields.reduce((sum, f) => {
                 if (f === 'salary') return sum;
-                return sum + (Number(document.getElementById('bg-' + f).value) || 0);
+                let elem = document.getElementById('bg-' + f);
+                return sum + (elem ? (Number(elem.value) || 0) : 0);
             }, 0);
 
-            // 剩餘可用額度 = 可花費金額 - 本月已累積花費
             let remaining = spend - currentMonthTotal;
             let remElem = document.getElementById('month-remaining');
             let remContainer = document.getElementById('rem-container');
-            remElem.innerText = remaining.toLocaleString();
+            if(remElem) remElem.innerText = remaining.toLocaleString();
             
-            if (remaining < 0) {
-                remContainer.classList.add('rem-over');
-            } else {
-                remContainer.classList.remove('rem-over');
+            if (remContainer) {
+                if (remaining < 0) remContainer.classList.add('rem-over');
+                else remContainer.classList.remove('rem-over');
             }
 
             let remDays = getRemainingDaysInMonth();
-            document.getElementById('rem-days').innerText = remDays;
+            let remDaysElem = document.getElementById('rem-days');
+            if(remDaysElem) remDaysElem.innerText = remDays;
             
             let dailyBudget = remaining > 0 ? Math.floor(remaining / remDays) : 0;
-            document.getElementById('daily-budget').innerText = dailyBudget.toLocaleString();
+            let dailyElem = document.getElementById('daily-budget');
+            if(dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
 
-            // 提示月薪與所有分配項目的平衡狀態
             let statusElem = document.getElementById('budget-status');
             let diff = salary - allocSum;
 
-            if (diff === 0 && salary > 0) {
-                statusElem.className = "budget-status-bar bg-ok";
-                statusElem.innerText = "✅ 預算分配完美平衡！(100% 已分配)";
-            } else if (diff > 0) {
-                statusElem.className = "budget-status-bar bg-warn";
-                statusElem.innerText = `💡 還有 NT$ ${diff.toLocaleString()} 未分配完畢`;
-            } else if (diff < 0) {
-                statusElem.className = "budget-status-bar bg-error";
-                statusElem.innerText = `⚠️ 預算爆了！超過月薪 NT$ ${Math.abs(diff).toLocaleString()}`;
-            } else {
-                statusElem.className = "budget-status-bar bg-warn";
-                statusElem.innerText = "💡 請輸入月薪與分配項目";
+            if (statusElem) {
+                if (diff === 0 && salary > 0) {
+                    statusElem.className = "budget-status-bar bg-ok";
+                    statusElem.innerText = "✅ 預算分配完美平衡！(100% 已分配)";
+                } else if (diff > 0) {
+                    statusElem.className = "budget-status-bar bg-warn";
+                    statusElem.innerText = `💡 還有 NT$ ${diff.toLocaleString()} 未分配完畢`;
+                } else if (diff < 0) {
+                    statusElem.className = "budget-status-bar bg-error";
+                    statusElem.innerText = `⚠️ 預算爆了！超過月薪 NT$ ${Math.abs(diff).toLocaleString()}`;
+                } else {
+                    statusElem.className = "budget-status-bar bg-warn";
+                    statusElem.innerText = "💡 請輸入月薪與分配項目";
+                }
             }
         }
 
@@ -356,25 +361,29 @@
                     if (data && data.records) {
                         total = data.records.reduce((sum, r) => {
                             if (r.date) {
-                                let dateStr = r.date.toString();
-                                let amtStr = r.amount ? r.amount.toString() : "0";
-                                if (dateStr.includes("#NUM!") || amtStr.includes("#NUM!")) return sum;
-                                if (dateStr.replace(/\//g, '-').substring(0, 7) === currentYearMonth) {
-                                    let amt = Number(r.amount); return sum + (isNaN(amt) ? 0 : amt);
+                                let dateStr = r.date.toString().replace(/\//g, '-');
+                                if (dateStr.substring(0, 7) === currentYearMonth) {
+                                    let amt = Number(r.amount); 
+                                    return sum + (isNaN(amt) ? 0 : amt);
                                 }
                             } return sum;
                         }, 0);
                     }
                     currentMonthTotal = total;
-                    document.getElementById('month-total').innerText = total.toLocaleString();
+                    let mTotalElem = document.getElementById('month-total');
+                    if(mTotalElem) mTotalElem.innerText = total.toLocaleString();
                     
+                    // 從雲端同步預算數字（如果雲端有數字就蓋掉本地）
                     if (data && data.budgets) {
                         fields.forEach(f => { 
-                            let cloudVal = Number(data.budgets[f]);
-                            if (!isNaN(cloudVal) && cloudVal > 0) { 
-                                document.getElementById('bg-' + f).value = cloudVal; 
-                                localStorage.setItem('budget_' + f, cloudVal); 
-                            } 
+                            if (data.budgets[f] !== undefined && data.budgets[f] !== "") {
+                                let cloudVal = Number(data.budgets[f]);
+                                let elem = document.getElementById('bg-' + f);
+                                if (elem) {
+                                    elem.value = cloudVal;
+                                    localStorage.setItem('budget_' + f, cloudVal);
+                                }
+                            }
                         });
                     }
                     
@@ -393,7 +402,6 @@
             element.classList.add('selected'); 
         }
 
-        // 鍵盤輸入邏輯 (支援按 '-' 開頭跑出減號)
         function pressKey(key) { 
             triggerVibration("light"); 
             if (key === 'C') { 
@@ -404,28 +412,19 @@
                     currentAmount = "0";
                 }
             } else if (key === '-') {
-                // 如果已經有減號就移除，沒有就加在最前面
                 if (currentAmount.startsWith('-')) {
                     currentAmount = currentAmount.substring(1);
                     if (currentAmount === "") currentAmount = "0";
                 } else {
-                    if (currentAmount === "0") {
-                        currentAmount = "-";
-                    } else {
-                        currentAmount = "-" + currentAmount;
-                    }
+                    if (currentAmount === "0") currentAmount = "-";
+                    else currentAmount = "-" + currentAmount;
                 }
             } else { 
-                if (currentAmount === "0") {
-                    currentAmount = key;
-                } else if (currentAmount === "-") {
-                    currentAmount = "-" + key;
-                } else {
-                    currentAmount = currentAmount + key;
-                }
+                if (currentAmount === "0") currentAmount = key;
+                else if (currentAmount === "-") currentAmount = "-" + key;
+                else currentAmount = currentAmount + key;
             } 
             
-            // 畫面顯示處理
             if (currentAmount === "-") {
                 document.getElementById('tx-amount').innerText = "-0";
             } else {
@@ -434,11 +433,17 @@
             }
         }
         
+        // 當使用者輸入預算時：立刻存本地 + 強制同步到試算表
         function updateBudget(cat, val) { 
             let amt = Number(val) || 0;
             localStorage.setItem('budget_' + cat, amt); 
             checkBudgetBalance();
-            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`); 
+            
+            // 使用 mode: 'no-cors' 確保請求 100% 打出去不被瀏覽器攔截
+            fetch(`${GAS_URL}?action=updateBudget&category=${cat}&amount=${amt}`, { mode: 'no-cors' })
+            .then(() => {
+                console.log(`[預算更新成功] ${cat}: ${amt}`);
+            });
         }
 
         function submitRecord() {
