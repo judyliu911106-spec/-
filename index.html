@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳 - 記帳首頁</title>
+    
     <link rel="stylesheet" href="style.css?v=10.0">
     <link rel="manifest" href="manifest.json">
     
@@ -65,6 +66,11 @@
         }
 
         .text-center { text-align: center; }
+        .text-pink { color: #ff1493; font-weight: bold; }
+        .text-green { color: #2e8b57; font-weight: bold; }
+        .panel-title { font-size: 11px; font-weight: bold; color: #444; }
+        .sub-title { font-size: 10px; font-weight: bold; margin-bottom: 2px; color: #555; }
+        .label-sm { font-size: 9px; color: #666; font-weight: bold; }
         
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
         .dashboard-item { background: rgba(255, 255, 255, 0.95); padding: 4px; border-radius: 10px; text-align: center; }
@@ -182,27 +188,27 @@
         <!-- 頂部概況 -->
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div style="font-size:11px; font-weight:bold; color:#444;">🌸 本月收支概況</div>
+            <div class="panel-title">🌸 本月收支概況</div>
             
             <div class="dashboard-grid">
                 <div class="dashboard-item">
-                    <div style="font-size:9px; color:#666; font-weight:bold;">本月累積花費</div>
+                    <div class="label-sm">本月累積花費</div>
                     <div class="total-amount">NT$ <span id="month-total">0</span></div>
                 </div>
                 <div class="dashboard-item">
-                    <div style="font-size:9px; color:#666; font-weight:bold;">剩餘可用額度</div>
+                    <div class="label-sm">剩餘可用額度</div>
                     <div class="rem-amount" id="rem-container">NT$ <span id="month-remaining">0</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- 預算分配區（8 個新項目） -->
+        <!-- 預算分配區 -->
         <div class="glass-panel">
-            <div style="font-size:10px; font-weight:bold; margin-bottom:2px; color:#555;">🎀 預算餘額分配</div>
+            <div class="sub-title">🎀 預算餘額分配</div>
             <div class="budget-grid">
-                <div class="budget-item"><span style="font-weight:bold; color:#ff1493;">月薪</span><input type="number" id="bg-salary" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
+                <div class="budget-item"><span class="text-pink">月薪</span><input type="number" id="bg-salary" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
                 <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
-                <div class="budget-item"><span style="font-weight:bold; color:#2e8b57;">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
+                <div class="budget-item"><span class="text-green">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
                 <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
                 <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
                 <div class="budget-item"><span>餐費</span><input type="number" id="bg-food" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('food', this.value)"></div>
@@ -215,7 +221,7 @@
             </div>
 
             <div class="daily-bar">
-                <span>📅 本月剩餘 <b id="rem-days" style="color:#ff1493;">0</b> 天，平均每日可用：</span>
+                <span>📅 本月剩餘 <b id="rem-days" class="text-pink">0</b> 天，平均每日可用：</span>
                 <span class="daily-amount">NT$ <span id="daily-budget">0</span></span>
             </div>
         </div>
@@ -247,14 +253,20 @@
             </div>
 
             <div class="amount-display">
-                已選: <span id="selected-cat-text" style="color:#ff1493; font-weight:bold;">未選擇</span> | 
-                金額: <span style="color:#ff1493; font-weight:bold;">$</span><span id="tx-amount" style="color:#ff1493; font-weight:bold;">0</span>
+                已選: <span id="selected-cat-text" class="text-pink">未選擇</span> | 
+                金額: <span class="text-pink">$<span id="tx-amount">0</span></span>
             </div>
             
             <div class="keyboard">
-                <div class="key" onclick="pressKey('1')">1</div><div class="key" onclick="pressKey('2')">2</div><div class="key" onclick="pressKey('3')">3</div>
-                <div class="key" onclick="pressKey('4')">4</div><div class="key" onclick="pressKey('5')">5</div><div class="key" onclick="pressKey('6')">6</div>
-                <div class="key" onclick="pressKey('7')">7</div><div class="key" onclick="pressKey('8')">8</div><div class="key" onclick="pressKey('9')">9</div>
+                <div class="key" onclick="pressKey('1')">1</div>
+                <div class="key" onclick="pressKey('2')">2</div>
+                <div class="key" onclick="pressKey('3')">3</div>
+                <div class="key" onclick="pressKey('4')">4</div>
+                <div class="key" onclick="pressKey('5')">5</div>
+                <div class="key" onclick="pressKey('6')">6</div>
+                <div class="key" onclick="pressKey('7')">7</div>
+                <div class="key" onclick="pressKey('8')">8</div>
+                <div class="key" onclick="pressKey('9')">9</div>
                 
                 <div class="split-key-container">
                     <div class="split-key" style="color:#ff1493;" onclick="pressKey('-')">-</div>
@@ -262,7 +274,7 @@
                 </div>
                 
                 <div class="key" onclick="pressKey('0')">0</div>
-                <div class="key submit-btn" onclick="submitRecord()">送出✨</div>
+                <div class="key submit-btn" id="btn-submit" onclick="submitRecord()">送出✨</div>
             </div>
         </div>
     </div>
@@ -280,11 +292,15 @@
         let chosenCategory = "";
         let currentMonthTotal = 0;
         
-        // 更新預算欄位列表
         const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'others'];
 
         function triggerVibration(type = "light") {
-            try { if (window.navigator && window.navigator.vibrate) { if (type === "light") window.navigator.vibrate(15); else if (type === "success") window.navigator.vibrate([40, 40, 40]); } } catch (e) {}
+            try { 
+                if (window.navigator && window.navigator.vibrate) { 
+                    if (type === "light") window.navigator.vibrate(15); 
+                    else if (type === "success") window.navigator.vibrate([40, 40, 40]); 
+                } 
+            } catch (e) {}
         }
 
         window.addEventListener('load', () => {
@@ -322,7 +338,7 @@
             let remaining = spend - currentMonthTotal;
             let remElem = document.getElementById('month-remaining');
             let remContainer = document.getElementById('rem-container');
-            if(remElem) remElem.innerText = remaining.toLocaleString();
+            if (remElem) remElem.innerText = remaining.toLocaleString();
             
             if (remContainer) {
                 if (remaining < 0) remContainer.classList.add('rem-over');
@@ -331,11 +347,11 @@
 
             let remDays = getRemainingDaysInMonth();
             let remDaysElem = document.getElementById('rem-days');
-            if(remDaysElem) remDaysElem.innerText = remDays;
+            if (remDaysElem) remDaysElem.innerText = remDays;
             
             let dailyBudget = remaining > 0 ? Math.floor(remaining / remDays) : 0;
             let dailyElem = document.getElementById('daily-budget');
-            if(dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
+            if (dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
 
             let statusElem = document.getElementById('budget-status');
             let diff = salary - allocSum;
@@ -358,7 +374,7 @@
         }
 
         function fetchCloudData(isManual = false) {
-            if(isManual) triggerVibration("light");
+            if (isManual) triggerVibration("light");
             
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
                 .then(res => res.json())
@@ -366,6 +382,7 @@
                     let today = new Date();
                     let currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
                     let total = 0;
+                    
                     if (data && data.records) {
                         total = data.records.reduce((sum, r) => {
                             if (r.date) {
@@ -374,12 +391,13 @@
                                     let amt = Number(r.amount); 
                                     return sum + (isNaN(amt) ? 0 : amt);
                                 }
-                            } return sum;
+                            }
+                            return sum;
                         }, 0);
                     }
                     currentMonthTotal = total;
                     let mTotalElem = document.getElementById('month-total');
-                    if(mTotalElem) mTotalElem.innerText = total.toLocaleString();
+                    if (mTotalElem) mTotalElem.innerText = total.toLocaleString();
                     
                     if (data && data.budgets) {
                         fields.forEach(f => { 
@@ -395,9 +413,9 @@
                     }
                     
                     checkBudgetBalance();
-                    if(isManual) alert("同步成功囉！✨");
+                    if (isManual) alert("同步成功囉！✨");
                 }).catch(err => {
-                    if(isManual) alert("同步失敗，請檢查網路連線。");
+                    if (isManual) alert("同步失敗，請檢查網路連線。");
                 });
         }
 
@@ -469,6 +487,10 @@
                 return; 
             }
             
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.style.pointerEvents = 'none';
+            btnSubmit.innerText = '傳送中...';
+            
             fetch(GAS_URL, { 
                 method: "POST", 
                 body: JSON.stringify({ 
@@ -478,10 +500,16 @@
                     amount: finalAmt 
                 }) 
             })
-            .then(res => res.json()).then(res => { 
+            .then(res => res.json())
+            .then(res => { 
                 triggerVibration("success"); 
-                alert(res.message); 
+                alert(res.message || "記錄成功！"); 
                 location.reload(); 
+            })
+            .catch(err => {
+                alert("寫入失敗，請確認網路！");
+                btnSubmit.style.pointerEvents = 'auto';
+                btnSubmit.innerText = '送出✨';
             });
         }
     </script>
