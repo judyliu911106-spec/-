@@ -69,8 +69,10 @@
         .text-center { text-align: center; }
         .text-pink { color: #ff1493; font-weight: bold; }
         .text-green { color: #2e8b57; font-weight: bold; }
-        .panel-header { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #444; }
+        
+        .panel-header { display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 11px; font-weight: bold; color: #444; }
         .month-select { border: 1px solid #ffb6c1; border-radius: 6px; padding: 1px 4px; font-size: 11px; background: #fff; color: #ff1493; font-weight: bold; }
+        
         .sub-title { font-size: 10px; font-weight: bold; margin-bottom: 2px; color: #555; }
         .label-sm { font-size: 9px; color: #666; font-weight: bold; }
         
@@ -104,8 +106,8 @@
         .bg-warn { background: #e3f2fd; color: #1565c0; }
         .bg-error { background: #ffebee; color: #c62828; }
 
-        /* 新增：分類統計卡片 */
-        .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 3px; max-height: 80px; overflow-y: auto; }
+        /* 新增：選定月份的分類統計小面板 */
+        .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 3px; max-height: 70px; overflow-y: auto; }
         .cat-sum-item { background: #fff; padding: 2px 4px; border-radius: 4px; font-size: 9px; display: flex; justify-content: space-between; }
 
         .input-row { display: flex; gap: 4px; margin-bottom: 2px; }
@@ -191,7 +193,7 @@
 <body>
 
     <div class="app-shell">
-        <!-- 頂部概況 -->
+        <!-- 頂部概況（已替換為可切換月份） -->
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
             <div class="panel-header">
@@ -211,8 +213,8 @@
                 </div>
             </div>
 
-            <!-- 新增：該月各分類金額總覽 -->
-            <div style="font-size:9px; color:#888; text-align:left; margin-top:4px;">📊 該月小計明細：</div>
+            <!-- 該月分類小計區 -->
+            <div style="font-size:9px; color:#888; text-align:left; margin-top:4px;">📊 該月類別明細：</div>
             <div class="category-summary-grid" id="cat-summary-box">
                 <div style="grid-column: span 3; color:#999; font-size:9px;">載入中...</div>
             </div>
@@ -307,7 +309,7 @@
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
-        let globalRawRecords = []; // 儲存全量雲端紀錄供切換月份比對
+        let globalRawRecords = []; // 暫存雲端所有原始紀錄
         
         const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'others'];
 
@@ -324,7 +326,7 @@
             const today = new Date();
             document.getElementById('tx-date').valueAsDate = today;
 
-            // 預設月份輸入框為當前年月 (YYYY-MM)
+            // 預設月份選單為當前年月 (YYYY-MM)
             const yearMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
             document.getElementById('selected-month').value = yearMonthStr;
             
@@ -340,11 +342,11 @@
             fetchCloudData(false);
         });
 
+        // 計算目標月份的剩餘天數 (非當月則回傳 0)
         function getRemainingDaysInMonth(targetYearMonth) {
             let now = new Date();
             let [y, m] = targetYearMonth.split('-').map(Number);
             
-            // 如果切換的是歷史月份（非當月份），剩餘天數算 0
             if (y !== now.getFullYear() || m !== (now.getMonth() + 1)) {
                 return 0;
             }
@@ -433,7 +435,7 @@
                 });
         }
 
-        // 核心邏輯：根據切換的月份，重新計算總額與各分類明細
+        // 核心邏輯：依據選擇的年月重新計算花費與分類
         function renderMonthData() {
             const targetYearMonth = document.getElementById('selected-month').value;
             if (!targetYearMonth) return;
@@ -459,7 +461,7 @@
             let mTotalElem = document.getElementById('month-total');
             if (mTotalElem) mTotalElem.innerText = total.toLocaleString();
 
-            // 渲染分類小計區塊
+            // 渲染分類明細
             const catBox = document.getElementById('cat-summary-box');
             if (Object.keys(catSummary).length === 0) {
                 catBox.innerHTML = `<div style="grid-column: span 3; color:#999; font-size:9px;">該月無記帳紀錄</div>`;
