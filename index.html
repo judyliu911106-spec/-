@@ -45,6 +45,7 @@
             flex-direction: column; 
             height: calc(100vh - env(safe-area-inset-top, 8px) - 52px - env(safe-area-inset-bottom, 0px));
             gap: 4px; 
+            overflow-y: auto;
         }
 
         .glass-panel { 
@@ -68,7 +69,8 @@
         .text-center { text-align: center; }
         .text-pink { color: #ff1493; font-weight: bold; }
         .text-green { color: #2e8b57; font-weight: bold; }
-        .panel-title { font-size: 11px; font-weight: bold; color: #444; }
+        .panel-header { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #444; }
+        .month-select { border: 1px solid #ffb6c1; border-radius: 6px; padding: 1px 4px; font-size: 11px; background: #fff; color: #ff1493; font-weight: bold; }
         .sub-title { font-size: 10px; font-weight: bold; margin-bottom: 2px; color: #555; }
         .label-sm { font-size: 9px; color: #666; font-weight: bold; }
         
@@ -101,6 +103,10 @@
         .bg-ok { background: #e8f5e9; color: #2e7d32; }
         .bg-warn { background: #e3f2fd; color: #1565c0; }
         .bg-error { background: #ffebee; color: #c62828; }
+
+        /* 新增：分類統計卡片 */
+        .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 3px; max-height: 80px; overflow-y: auto; }
+        .cat-sum-item { background: #fff; padding: 2px 4px; border-radius: 4px; font-size: 9px; display: flex; justify-content: space-between; }
 
         .input-row { display: flex; gap: 4px; margin-bottom: 2px; }
         .input-row input { flex: 1; padding: 4px 6px; border-radius: 6px; border: 1px solid #ffb6c1; font-size: 11px; }
@@ -188,17 +194,27 @@
         <!-- 頂部概況 -->
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div class="panel-title">🌸 本月收支概況</div>
+            <div class="panel-header">
+                <span>🌸</span>
+                <input type="month" id="selected-month" class="month-select" onchange="renderMonthData()">
+                <span>收支概況</span>
+            </div>
             
             <div class="dashboard-grid">
                 <div class="dashboard-item">
-                    <div class="label-sm">本月累積花費</div>
+                    <div class="label-sm">該月累積花費</div>
                     <div class="total-amount">NT$ <span id="month-total">0</span></div>
                 </div>
                 <div class="dashboard-item">
                     <div class="label-sm">剩餘可用額度</div>
                     <div class="rem-amount" id="rem-container">NT$ <span id="month-remaining">0</span></div>
                 </div>
+            </div>
+
+            <!-- 新增：該月各分類金額總覽 -->
+            <div style="font-size:9px; color:#888; text-align:left; margin-top:4px;">📊 該月小計明細：</div>
+            <div class="category-summary-grid" id="cat-summary-box">
+                <div style="grid-column: span 3; color:#999; font-size:9px;">載入中...</div>
             </div>
         </div>
 
@@ -291,6 +307,7 @@
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
+        let globalRawRecords = []; // 儲存全量雲端紀錄供切換月份比對
         
         const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'others'];
 
@@ -304,7 +321,12 @@
         }
 
         window.addEventListener('load', () => {
-            document.getElementById('tx-date').valueAsDate = new Date();
+            const today = new Date();
+            document.getElementById('tx-date').valueAsDate = today;
+
+            // 預設月份輸入框為當前年月 (YYYY-MM)
+            const yearMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('selected-month').value = yearMonthStr;
             
             fields.forEach(f => { 
                 let val = localStorage.getItem('budget_' + f);
@@ -318,9 +340,16 @@
             fetchCloudData(false);
         });
 
-        function getRemainingDaysInMonth() {
+        function getRemainingDaysInMonth(targetYearMonth) {
             let now = new Date();
-            let totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            let [y, m] = targetYearMonth.split('-').map(Number);
+            
+            // 如果切換的是歷史月份（非當月份），剩餘天數算 0
+            if (y !== now.getFullYear() || m !== (now.getMonth() + 1)) {
+                return 0;
+            }
+
+            let totalDays = new Date(y, m, 0).getDate();
             let currentDay = now.getDate();
             return (totalDays - currentDay) + 1;
         }
@@ -328,6 +357,7 @@
         function checkBudgetBalance() {
             let salary = Number(document.getElementById('bg-salary')?.value) || 0;
             let spend = Number(document.getElementById('bg-spend')?.value) || 0;
+            let selectedYearMonth = document.getElementById('selected-month')?.value || '';
             
             let allocSum = fields.reduce((sum, f) => {
                 if (f === 'salary') return sum;
@@ -345,11 +375,11 @@
                 else remContainer.classList.remove('rem-over');
             }
 
-            let remDays = getRemainingDaysInMonth();
+            let remDays = selectedYearMonth ? getRemainingDaysInMonth(selectedYearMonth) : 0;
             let remDaysElem = document.getElementById('rem-days');
             if (remDaysElem) remDaysElem.innerText = remDays;
             
-            let dailyBudget = remaining > 0 ? Math.floor(remaining / remDays) : 0;
+            let dailyBudget = (remaining > 0 && remDays > 0) ? Math.floor(remaining / remDays) : 0;
             let dailyElem = document.getElementById('daily-budget');
             if (dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
 
@@ -379,25 +409,9 @@
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
                 .then(res => res.json())
                 .then(data => {
-                    let today = new Date();
-                    let currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-                    let total = 0;
-                    
                     if (data && data.records) {
-                        total = data.records.reduce((sum, r) => {
-                            if (r.date) {
-                                let dateStr = r.date.toString().replace(/\//g, '-');
-                                if (dateStr.substring(0, 7) === currentYearMonth) {
-                                    let amt = Number(r.amount); 
-                                    return sum + (isNaN(amt) ? 0 : amt);
-                                }
-                            }
-                            return sum;
-                        }, 0);
+                        globalRawRecords = data.records;
                     }
-                    currentMonthTotal = total;
-                    let mTotalElem = document.getElementById('month-total');
-                    if (mTotalElem) mTotalElem.innerText = total.toLocaleString();
                     
                     if (data && data.budgets) {
                         fields.forEach(f => { 
@@ -412,11 +426,52 @@
                         });
                     }
                     
-                    checkBudgetBalance();
+                    renderMonthData();
                     if (isManual) alert("同步成功囉！✨");
                 }).catch(err => {
                     if (isManual) alert("同步失敗，請檢查網路連線。");
                 });
+        }
+
+        // 核心邏輯：根據切換的月份，重新計算總額與各分類明細
+        function renderMonthData() {
+            const targetYearMonth = document.getElementById('selected-month').value;
+            if (!targetYearMonth) return;
+
+            let total = 0;
+            let catSummary = {};
+
+            globalRawRecords.forEach(r => {
+                if (r.date) {
+                    let dateStr = r.date.toString().replace(/\//g, '-');
+                    if (dateStr.substring(0, 7) === targetYearMonth) {
+                        let amt = Number(r.amount);
+                        if (!isNaN(amt)) {
+                            total += amt;
+                            let cat = r.category || '未分類';
+                            catSummary[cat] = (catSummary[cat] || 0) + amt;
+                        }
+                    }
+                }
+            });
+
+            currentMonthTotal = total;
+            let mTotalElem = document.getElementById('month-total');
+            if (mTotalElem) mTotalElem.innerText = total.toLocaleString();
+
+            // 渲染分類小計區塊
+            const catBox = document.getElementById('cat-summary-box');
+            if (Object.keys(catSummary).length === 0) {
+                catBox.innerHTML = `<div style="grid-column: span 3; color:#999; font-size:9px;">該月無記帳紀錄</div>`;
+            } else {
+                let html = '';
+                for (let cat in catSummary) {
+                    html += `<div class="cat-sum-item"><span>${cat}</span><b>$${catSummary[cat].toLocaleString()}</b></div>`;
+                }
+                catBox.innerHTML = html;
+            }
+
+            checkBudgetBalance();
         }
 
         function selectCat(element, cat) { 
