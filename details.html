@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳 - 明細歷史</title>
     <link rel="stylesheet" href="style.css?v=10.0">
-    <link rel="manifest" href="manifest.json">
-    
     <style>
         * { box-sizing: border-box; }
         html, body {
@@ -31,16 +29,13 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            gap: 4px;
         }
-        .title { font-size: 13px; font-weight: bold; color: #444; margin: 0; }
+        .title { font-size: 13px; font-weight: bold; color: #444; margin: 0; white-space: nowrap; }
+        .filter-group { display: flex; gap: 4px; }
         .filter-select {
-            padding: 4px 8px;
-            border-radius: 8px;
-            border: 1px solid #ffb6c1;
-            background: #ffffff;
-            font-size: 11px;
-            color: #333;
-            outline: none;
+            padding: 4px 6px; border-radius: 8px; border: 1px solid #ffb6c1;
+            background: #ffffff; font-size: 11px; color: #333; outline: none;
         }
         .record-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
         .record-item {
@@ -67,7 +62,7 @@
         .nav-link { 
             text-decoration: none; color: #888; font-size: 12px; flex: 1; height: 36px;
             display: flex !important; align-items: center !important; justify-content: center !important;
-            border-radius: 10px; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: all 0.2s ease;
+            border-radius: 10px; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
         .nav-link.active { color: #ff1493; font-weight: bold; background: #fff0f5; border: 1px solid #ffb6c1; }
     </style>
@@ -76,23 +71,27 @@
     <div class="app-shell">
         <div class="glass-panel">
             <div class="header-area">
-                <div class="title">📜 歷史記帳明細</div>
-                <!-- 🛒 與記帳首頁按鈕一模一樣的項目篩選器 -->
-                <select id="category-filter" class="filter-select" onchange="renderRecords()">
-                    <option value="all">全部項目</option>
-                    <option value="主食">🍱 主食</option>
-                    <option value="飲料">🥤 飲料</option>
-                    <option value="點心">🍰 點心</option>
-                    <option value="日用品">🧻 日用品</option>
-                    <option value="美妝保養">💄 美妝保養</option>
-                    <option value="服飾鞋包">👗 服飾鞋包</option>
-                    <option value="大眾運輸">🚌 大眾運輸</option>
-                    <option value="加油保養">⛽ 加油保養</option>
-                    <option value="娛樂休閒">🎮 娛樂休閒</option>
-                    <option value="醫療保健">💊 醫療保健</option>
-                    <option value="固定開銷">🏠 固定開銷</option>
-                    <option value="其他費用">✨ 其他費用</option>
-                </select>
+                <div class="title">📜 明細歷史</div>
+                <div class="filter-group">
+                    <!-- 📅 月份篩選 -->
+                    <input type="month" id="month-filter" class="filter-select" onchange="renderRecords()">
+                    <!-- 🛒 項目篩選 -->
+                    <select id="category-filter" class="filter-select" onchange="renderRecords()">
+                        <option value="all">全部項目</option>
+                        <option value="主食">🍱 主食</option>
+                        <option value="飲料">🥤 飲料</option>
+                        <option value="點心">🍰 點心</option>
+                        <option value="日用品">🧻 日用品</option>
+                        <option value="美妝保養">💄 美妝保養</option>
+                        <option value="服飾鞋包">👗 服飾鞋包</option>
+                        <option value="大眾運輸">🚌 大眾運輸</option>
+                        <option value="加油保養">⛽ 加油保養</option>
+                        <option value="娛樂休閒">🎮 娛樂休閒</option>
+                        <option value="醫療保健">💊 醫療保健</option>
+                        <option value="固定開銷">🏠 固定開銷</option>
+                        <option value="其他費用">✨ 其他費用</option>
+                    </select>
+                </div>
             </div>
             <div class="record-list" id="record-container">
                 <div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">載入中...</div>
@@ -110,7 +109,13 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec";
         let rawRecords = [];
 
-        window.addEventListener('load', loadData);
+        window.addEventListener('load', () => {
+            // 預設選擇當前月份 (YYYY-MM)
+            const now = new Date();
+            const currentMonth = now.toISOString().substring(0, 7);
+            document.getElementById('month-filter').value = currentMonth;
+            loadData();
+        });
 
         function loadData() {
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
@@ -127,48 +132,53 @@
 
         function renderRecords() {
             let container = document.getElementById('record-container');
+            let selectedMonth = document.getElementById('month-filter').value; // YYYY-MM
             let selectedCat = document.getElementById('category-filter').value;
             container.innerHTML = "";
 
             let filtered = rawRecords.filter(r => {
-                if (selectedCat === "all") return true;
-                // 模糊比對 category 欄位（例如：點擊「主食」時可比對「主食」或「🍱 主食」）
-                return r.category && r.category.includes(selectedCat);
+                let rDateStr = r.date ? r.date.toString().substring(0, 7) : "";
+                let matchMonth = !selectedMonth || rDateStr === selectedMonth;
+                let matchCat = selectedCat === "all" || (r.category && r.category.includes(selectedCat));
+                return matchMonth && matchCat;
             });
 
             if (filtered.length > 0) {
                 filtered.slice().reverse().forEach(r => {
+                    let dateDisplay = r.date ? r.date.toString().substring(0,10) : '';
                     let itemHtml = `
                         <div class="record-item">
                             <div class="record-info">
                                 <div class="record-cat">${r.category || "未分類"} ${r.item ? '- ' + r.item : ''}</div>
-                                <div class="record-detail">${r.date ? r.date.toString().substring(0,10) : ''}</div>
+                                <div class="record-detail">${dateDisplay}</div>
                             </div>
                             <div class="right-area">
                                 <div class="record-amount">NT$ ${Number(r.amount).toLocaleString()}</div>
-                                <button class="delete-btn" onclick="deleteRecord(${r.rowIndex})">刪除</button>
+                                <button class="delete-btn" onclick="deleteRecord('${dateDisplay}', '${r.category}', ${r.amount})">刪除</button>
                             </div>
                         </div>
                     `;
                     container.innerHTML += itemHtml;
                 });
             } else {
-                container.innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">沒有此項目的紀錄喔！</div>`;
+                container.innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">此條件下無紀錄喔！</div>`;
             }
         }
 
-        function deleteRecord(rowIndex) {
-            if (confirm("確定要刪除這筆紀錄嗎？")) {
+        function deleteRecord(date, category, amount) {
+            if (confirm("確定要將這筆紀錄從雲端試算表中刪除嗎？")) {
                 fetch(GAS_URL, {
                     method: "POST",
                     body: JSON.stringify({
                         action: "deleteRecord",
-                        rowIndex: rowIndex
+                        date: date,
+                        category: category,
+                        amount: amount
                     })
                 })
                 .then(res => res.json())
                 .then(res => {
-                    alert("已刪除！");
+                    alert("刪除成功！試算表已同步更新。");
                     loadData();
                 });
             }
