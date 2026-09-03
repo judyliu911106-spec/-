@@ -22,11 +22,12 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100vh;
+            min-height: 100vh;
             background: #ffe4e1;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            overflow: hidden;
+            overflow-y: auto; /* 修改：允許滾動，解決按鈕遮擋問題 */
+            -webkit-overflow-scrolling: touch;
         }
 
         body { 
@@ -43,27 +44,25 @@
             margin: 0 auto; 
             display: flex; 
             flex-direction: column; 
-            height: calc(100vh - env(safe-area-inset-top, 8px) - 52px - env(safe-area-inset-bottom, 0px));
-            gap: 4px; 
-            overflow-y: auto;
+            /* 修改：移除寫死的高，增加 margin-bottom 預留底欄與鍵盤空間 */
+            margin-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
+            gap: 8px; 
         }
 
         .glass-panel { 
             background: rgba(255, 255, 255, 0.85); 
             border-radius: 14px; 
-            padding: 5px 8px; 
+            padding: 8px 10px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
             position: relative; 
             flex-shrink: 0;
         }
 
         .main-panel {
-            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 0;
-            padding: 5px 8px;
+            padding: 8px 10px;
         }
 
         .text-center { text-align: center; }
@@ -106,30 +105,29 @@
         .bg-warn { background: #e3f2fd; color: #1565c0; }
         .bg-error { background: #ffebee; color: #c62828; }
 
-        /* 新增：選定月份的分類統計小面板 */
         .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 3px; max-height: 70px; overflow-y: auto; }
         .cat-sum-item { background: #fff; padding: 2px 4px; border-radius: 4px; font-size: 9px; display: flex; justify-content: space-between; }
 
-        .input-row { display: flex; gap: 4px; margin-bottom: 2px; }
-        .input-row input { flex: 1; padding: 4px 6px; border-radius: 6px; border: 1px solid #ffb6c1; font-size: 11px; }
+        .input-row { display: flex; gap: 4px; margin-bottom: 6px; }
+        .input-row input { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #ffb6c1; font-size: 12px; }
 
-        .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 2px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .cat-btn { padding: 3px 6px; background: #fff; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 6px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .cat-btn { padding: 4px 8px; background: #fff; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; }
-        .amount-display { margin: 1px 0; text-align: center; font-size: 10px; background: #fff; padding: 2px; border-radius: 4px; }
+        .amount-display { margin: 4px 0; text-align: center; font-size: 11px; background: #fff; padding: 4px; border-radius: 4px; }
         
-        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-        .key { background: #fff; padding: 5px 0; text-align: center; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .key { background: #fff; padding: 10px 0; text-align: center; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
         .key:active { background: #ffebf0; }
         
         .split-key-container { display: flex; gap: 3px; }
-        .split-key { flex: 1; background: #fff; padding: 5px 0; text-align: center; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .split-key { flex: 1; background: #fff; padding: 10px 0; text-align: center; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
         .split-key:active { background: #ffebf0; }
 
         .submit-btn { 
             background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
             color: white; 
-            font-size: 12px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -193,7 +191,6 @@
 <body>
 
     <div class="app-shell">
-        <!-- 頂部概況（已替換為可切換月份） -->
         <div class="glass-panel text-center">
             <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
             <div class="panel-header">
@@ -213,14 +210,12 @@
                 </div>
             </div>
 
-            <!-- 該月分類小計區 -->
             <div style="font-size:9px; color:#888; text-align:left; margin-top:4px;">📊 該月類別明細：</div>
             <div class="category-summary-grid" id="cat-summary-box">
                 <div style="grid-column: span 3; color:#999; font-size:9px;">載入中...</div>
             </div>
         </div>
 
-        <!-- 預算分配區 -->
         <div class="glass-panel">
             <div class="sub-title">🎀 預算餘額分配</div>
             <div class="budget-grid">
@@ -244,7 +239,6 @@
             </div>
         </div>
 
-        <!-- 記帳與數字鍵盤區 -->
         <div class="glass-panel main-panel">
             <div class="input-row">
                 <input type="date" id="tx-date">
@@ -297,7 +291,6 @@
         </div>
     </div>
 
-    <!-- 底部三選項導覽列 -->
     <nav class="fixed-nav-bar">
         <a href="index.html" class="nav-link active">記帳首頁</a>
         <a href="memo.html" class="nav-link">備忘錄</a>
@@ -309,8 +302,8 @@
         let currentAmount = "0";
         let chosenCategory = "";
         let currentMonthTotal = 0;
-        let globalRawRecords = []; // 暫存雲端所有原始紀錄
-        
+        let globalRawRecords = [];
+
         const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'others'];
 
         function triggerVibration(type = "light") {
@@ -322,11 +315,18 @@
             } catch (e) {}
         }
 
+        // 格式化日期為 YYYY-MM-DD（避免 UTC 時區跑掉）
+        function getLocalDateString(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         window.addEventListener('load', () => {
             const today = new Date();
-            document.getElementById('tx-date').valueAsDate = today;
+            document.getElementById('tx-date').value = getLocalDateString(today);
 
-            // 預設月份選單為當前年月 (YYYY-MM)
             const yearMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
             document.getElementById('selected-month').value = yearMonthStr;
             
@@ -342,7 +342,6 @@
             fetchCloudData(false);
         });
 
-        // 計算目標月份的剩餘天數 (非當月則回傳 0)
         function getRemainingDaysInMonth(targetYearMonth) {
             let now = new Date();
             let [y, m] = targetYearMonth.split('-').map(Number);
@@ -435,7 +434,7 @@
                 });
         }
 
-        // 核心邏輯：依據選擇的年月重新計算花費與分類
+        // 修改：處理 ISO 日期轉換，避免 UTC 時區少一天
         function renderMonthData() {
             const targetYearMonth = document.getElementById('selected-month').value;
             if (!targetYearMonth) return;
@@ -445,7 +444,15 @@
 
             globalRawRecords.forEach(r => {
                 if (r.date) {
-                    let dateStr = r.date.toString().replace(/\//g, '-');
+                    // 自動轉為 ISO 字串並擷取當地日期或前 10 碼
+                    let dateStr = "";
+                    if (typeof r.date === 'string') {
+                        dateStr = r.date.split('T')[0].replace(/\//g, '-');
+                    } else {
+                        let d = new Date(r.date);
+                        dateStr = getLocalDateString(d);
+                    }
+
                     if (dateStr.substring(0, 7) === targetYearMonth) {
                         let amt = Number(r.amount);
                         if (!isNaN(amt)) {
@@ -461,7 +468,6 @@
             let mTotalElem = document.getElementById('month-total');
             if (mTotalElem) mTotalElem.innerText = total.toLocaleString();
 
-            // 渲染分類明細
             const catBox = document.getElementById('cat-summary-box');
             if (Object.keys(catSummary).length === 0) {
                 catBox.innerHTML = `<div style="grid-column: span 3; color:#999; font-size:9px;">該月無記帳紀錄</div>`;
