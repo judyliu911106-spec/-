@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳 - 記帳首頁</title>
     
-    <link rel="stylesheet" href="style.css?v=11.0">
+    <link rel="stylesheet" href="style.css?v=12.0">
     <link rel="manifest" href="manifest.json">
     
     <!-- 愛心書籤與 App 圖示 -->
@@ -18,21 +18,22 @@
 
     <style>
         * { box-sizing: border-box; }
+        
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            min-height: 100vh;
+            height: 100vh; /* 固定螢幕高度 */
             background: #ffe4e1;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow: hidden; /* 鎖定禁止滾動 */
         }
 
         body { 
-            /* 修改：大幅加大頂部留白，避開時間與電量列 */
-            padding-top: calc(env(safe-area-inset-top, 20px) + 24px) !important;
+            /* 加大頂部留白，使整體往下移避開狀態列 */
+            padding-top: calc(env(safe-area-inset-top, 20px) + 32px);
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 52px);
             padding-left: 10px;
             padding-right: 10px;
             display: flex;
@@ -42,18 +43,18 @@
         .app-shell { 
             max-width: 500px; 
             width: 100%;
+            height: 100%;
             margin: 0 auto; 
             display: flex; 
             flex-direction: column; 
-            margin-top: 4px;
-            margin-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
-            gap: 10px; 
+            justify-content: space-between; /* 均勻拉開三個區塊，善用下方空間 */
+            gap: 6px; 
         }
 
         .glass-panel { 
             background: rgba(255, 255, 255, 0.85); 
             border-radius: 14px; 
-            padding: 8px 10px; 
+            padding: 7px 10px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
             position: relative; 
             flex-shrink: 0;
@@ -63,7 +64,8 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 8px 10px;
+            padding: 7px 10px;
+            flex-grow: 0;
         }
 
         .text-center { text-align: center; }
@@ -78,57 +80,57 @@
         
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
         .dashboard-item { background: rgba(255, 255, 255, 0.95); padding: 4px; border-radius: 10px; text-align: center; }
-        .total-amount { font-size: 16px; font-weight: bold; color: #ff1493; }
-        .rem-amount { font-size: 16px; font-weight: bold; color: #2e8b57; }
+        .total-amount { font-size: 15px; font-weight: bold; color: #ff1493; }
+        .rem-amount { font-size: 15px; font-weight: bold; color: #2e8b57; }
         .rem-over { color: #d9534f !important; }
 
-        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; }
-        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 2px 6px; border-radius: 6px; }
-        .budget-item span { font-size: 11px; }
-        .budget-item input { width: 60px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 11px; }
+        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 1px 6px; border-radius: 6px; }
+        .budget-item span { font-size: 10px; }
+        .budget-item input { width: 55px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 10px; }
         
         .daily-bar { 
             margin-top: 3px; 
-            padding: 3px 6px; 
+            padding: 2px 6px; 
             background: #fff; 
             border-radius: 6px; 
-            font-size: 10px; 
+            font-size: 9.5px; 
             color: #444; 
             display: flex; 
             justify-content: space-between; 
             align-items: center;
             border: 1px solid #ffb6c1;
         }
-        .daily-amount { color: #2e8b57; font-weight: bold; font-size: 12px; }
+        .daily-amount { color: #2e8b57; font-weight: bold; font-size: 11px; }
 
-        .budget-status-bar { margin-top: 3px; padding: 2px 4px; border-radius: 6px; font-size: 10px; font-weight: bold; text-align: center; }
+        .budget-status-bar { margin-top: 2px; padding: 2px 4px; border-radius: 6px; font-size: 9.5px; font-weight: bold; text-align: center; }
         .bg-ok { background: #e8f5e9; color: #2e7d32; }
         .bg-warn { background: #e3f2fd; color: #1565c0; }
         .bg-error { background: #ffebee; color: #c62828; }
 
-        .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 3px; max-height: 70px; overflow-y: auto; }
-        .cat-sum-item { background: #fff; padding: 2px 4px; border-radius: 4px; font-size: 9px; display: flex; justify-content: space-between; }
+        .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 2px; max-height: 58px; overflow-y: auto; }
+        .cat-sum-item { background: #fff; padding: 1px 4px; border-radius: 4px; font-size: 8.5px; display: flex; justify-content: space-between; }
 
-        .input-row { display: flex; gap: 4px; margin-bottom: 6px; }
-        .input-row input { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #ffb6c1; font-size: 12px; }
+        .input-row { display: flex; gap: 4px; margin-bottom: 4px; }
+        .input-row input { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid #ffb6c1; font-size: 11px; }
 
-        .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 6px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .cat-btn { padding: 4px 8px; background: #fff; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 4px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .cat-btn { padding: 3px 7px; background: #fff; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 10.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; }
-        .amount-display { margin: 4px 0; text-align: center; font-size: 11px; background: #fff; padding: 4px; border-radius: 4px; }
+        .amount-display { margin: 3px 0; text-align: center; font-size: 10.5px; background: #fff; padding: 3px; border-radius: 4px; }
         
         .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .key { background: #fff; padding: 10px 0; text-align: center; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .key { background: #fff; padding: 8px 0; text-align: center; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
         .key:active { background: #ffebf0; }
         
         .split-key-container { display: flex; gap: 3px; }
-        .split-key { flex: 1; background: #fff; padding: 10px 0; text-align: center; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .split-key { flex: 1; background: #fff; padding: 8px 0; text-align: center; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
         .split-key:active { background: #ffebf0; }
 
         .submit-btn { 
             background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
             color: white; 
-            font-size: 13px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -211,9 +213,9 @@
                 </div>
             </div>
 
-            <div style="font-size:9px; color:#888; text-align:left; margin-top:4px;">📊 該月類別明細：</div>
+            <div style="font-size:9px; color:#888; text-align:left; margin-top:3px;">📊 該月類別明細：</div>
             <div class="category-summary-grid" id="cat-summary-box">
-                <div style="grid-column: span 3; color:#999; font-size:9px;">載入中...</div>
+                <div style="grid-column: span 3; color:#999; font-size:8.5px;">載入中...</div>
             </div>
         </div>
 
@@ -316,7 +318,6 @@
             } catch (e) {}
         }
 
-        // 取得本地 YYYY-MM-DD 字串（避免 UTC 影響導致少一天）
         function getLocalDateString(d = new Date()) {
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -469,7 +470,7 @@
 
             const catBox = document.getElementById('cat-summary-box');
             if (Object.keys(catSummary).length === 0) {
-                catBox.innerHTML = `<div style="grid-column: span 3; color:#999; font-size:9px;">該月無記帳紀錄</div>`;
+                catBox.innerHTML = `<div style="grid-column: span 3; color:#999; font-size:8.5px;">該月無記帳紀錄</div>`;
             } else {
                 let html = '';
                 for (let cat in catSummary) {
