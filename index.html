@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳 - 記帳首頁</title>
     
-    <link rel="stylesheet" href="style.css?v=12.0">
+    <link rel="stylesheet" href="style.css?v=13.0">
     <link rel="manifest" href="manifest.json">
     
     <!-- 愛心書籤與 App 圖示 -->
@@ -23,7 +23,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100vh; /* 固定螢幕高度 */
+            height: 100vh;
             background: #ffe4e1;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
@@ -332,15 +332,7 @@
             const yearMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
             document.getElementById('selected-month').value = yearMonthStr;
             
-            fields.forEach(f => { 
-                let val = localStorage.getItem('budget_' + f);
-                let elem = document.getElementById('bg-' + f);
-                if (elem && val !== null && val !== undefined) {
-                    elem.value = val; 
-                }
-            });
-            
-            checkBudgetBalance();
+            // 直接向雲端同步最新數據（不優先拿舊 LocalStorage）
             fetchCloudData(false);
         });
 
@@ -409,6 +401,7 @@
         function fetchCloudData(isManual = false) {
             if (isManual) triggerVibration("light");
             
+            // 加上 _t 時間戳記防瀏覽器快取
             fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
                 .then(res => res.json())
                 .then(data => {
@@ -416,16 +409,15 @@
                         globalRawRecords = data.records;
                     }
                     
+                    // 強制以雲端試算表為準覆蓋畫面
                     if (data && data.budgets) {
                         fields.forEach(f => { 
-                            if (data.budgets[f] !== undefined && data.budgets[f] !== "") {
-                                let cloudVal = Number(data.budgets[f]);
-                                let elem = document.getElementById('bg-' + f);
-                                if (elem) {
-                                    elem.value = cloudVal;
-                                    localStorage.setItem('budget_' + f, cloudVal);
-                                }
+                            let cloudVal = (data.budgets[f] !== undefined && data.budgets[f] !== "") ? Number(data.budgets[f]) : 0;
+                            let elem = document.getElementById('bg-' + f);
+                            if (elem) {
+                                elem.value = cloudVal;
                             }
+                            localStorage.setItem('budget_' + f, cloudVal);
                         });
                     }
                     
