@@ -2,573 +2,480 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>老公請查帳 - 記帳首頁</title>
-    
-    <link rel="stylesheet" href="style.css?v=13.0">
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- 愛心書籤與 App 圖示 -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='42' fill='url(%23bg-grad)'/><defs><linearGradient id='bg-grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ffe5ec'/><stop offset='100%' stop-color='%23ffb3c6'/></linearGradient><linearGradient id='heart-grad' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='%23ff4d6d'/><stop offset='100%' stop-color='%23c9184a'/></linearGradient><filter id='drop-shadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='6' stdDeviation='6' flood-color='%23ff0054' flood-opacity='0.25'/></filter></defs><g filter='url(%23drop-shadow)'><path d='M90,145 C90,145 35,110 35,68 C35,45 52,32 72,32 C83,32 90,40 90,40 C90,40 97,32 108,32 C128,32 145,45 145,68 C145,110 90,145 90,145 Z' fill='url(%23heart-grad)'/></g><path d='M50,60 C50,48 60,42 70,42' stroke='%23ffffff' stroke-width='4' stroke-linecap='round' fill='none' opacity='0.7'/><path d='M138,38 L141,46 L149,49 L141,52 L138,60 L135,52 L127,49 L135,46 Z' fill='%23ffffff' opacity='0.9'/><path d='M42,128 L44,133 L49,135 L44,137 L42,142 L40,137 L35,135 L40,133 Z' fill='%23ffffff' opacity='0.85'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='42' fill='url(%23bg-grad)'/><defs><linearGradient id='bg-grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ffe5ec'/><stop offset='100%' stop-color='%23ffb3c6'/></linearGradient><linearGradient id='heart-grad' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='%23ff4d6d'/><stop offset='100%' stop-color='%23c9184a'/></linearGradient><filter id='drop-shadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='6' stdDeviation='6' flood-color='%23ff0054' flood-opacity='0.25'/></filter></defs><g filter='url(%23drop-shadow)'><path d='M90,145 C90,145 35,110 35,68 C35,45 52,32 72,32 C83,32 90,40 90,40 C90,40 97,32 108,32 C128,32 145,45 145,68 C145,110 90,145 90,145 Z' fill='url(%23heart-grad)'/></g><path d='M50,60 C50,48 60,42 70,42' stroke='%23ffffff' stroke-width='4' stroke-linecap='round' fill='none' opacity='0.7'/><path d='M138,38 L141,46 L149,49 L141,52 L138,60 L135,52 L127,49 L135,46 Z' fill='%23ffffff' opacity='0.9'/><path d='M42,128 L44,133 L49,135 L44,137 L42,142 L40,137 L35,135 L40,133 Z' fill='%23ffffff' opacity='0.85'/></svg>">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="老公請查帳">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>極簡輕記帳</title>
     <style>
-        * { box-sizing: border-box; }
-        
-        html, body {
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #4a90e2;
+            --primary-hover: #357abd;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --border-color: #e2e8f0;
+            --danger: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100vh;
-            background: #ffe4e1;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            overflow: hidden; /* 鎖定禁止滾動 */
         }
 
-        body { 
-            /* 加大頂部留白，使整體往下移避開狀態列 */
-            padding-top: calc(env(safe-area-inset-top, 20px) + 32px);
-            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 52px);
-            padding-left: 10px;
-            padding-right: 10px;
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            padding: 12px;
+            min-height: 100vh;
         }
 
-        .app-shell { 
-            max-width: 500px; 
+        .container {
             width: 100%;
-            height: 100%;
-            margin: 0 auto; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; /* 均勻拉開三個區塊，善用下方空間 */
-            gap: 6px; 
-        }
-
-        .glass-panel { 
-            background: rgba(255, 255, 255, 0.85); 
-            border-radius: 14px; 
-            padding: 7px 10px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03); 
-            position: relative; 
-            flex-shrink: 0;
-        }
-
-        .main-panel {
+            max-width: 480px;
             display: flex;
             flex-direction: column;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .header {
+            display: flex;
             justify-content: space-between;
-            padding: 7px 10px;
-            flex-grow: 0;
-        }
-
-        .text-center { text-align: center; }
-        .text-pink { color: #ff1493; font-weight: bold; }
-        .text-green { color: #2e8b57; font-weight: bold; }
-        
-        .panel-header { display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 11px; font-weight: bold; color: #444; }
-        .month-select { border: 1px solid #ffb6c1; border-radius: 6px; padding: 1px 4px; font-size: 11px; background: #fff; color: #ff1493; font-weight: bold; }
-        
-        .sub-title { font-size: 10px; font-weight: bold; margin-bottom: 2px; color: #555; }
-        .label-sm { font-size: 9px; color: #666; font-weight: bold; }
-        
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
-        .dashboard-item { background: rgba(255, 255, 255, 0.95); padding: 4px; border-radius: 10px; text-align: center; }
-        .total-amount { font-size: 15px; font-weight: bold; color: #ff1493; }
-        .rem-amount { font-size: 15px; font-weight: bold; color: #2e8b57; }
-        .rem-over { color: #d9534f !important; }
-
-        .budget-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
-        .budget-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 1px 6px; border-radius: 6px; }
-        .budget-item span { font-size: 10px; }
-        .budget-item input { width: 55px; text-align: right; border: none; background: transparent; font-weight: bold; color: #ff1493; font-size: 10px; }
-        
-        .daily-bar { 
-            margin-top: 3px; 
-            padding: 2px 6px; 
-            background: #fff; 
-            border-radius: 6px; 
-            font-size: 9.5px; 
-            color: #444; 
-            display: flex; 
-            justify-content: space-between; 
             align-items: center;
-            border: 1px solid #ffb6c1;
+            margin-bottom: 8px;
         }
-        .daily-amount { color: #2e8b57; font-weight: bold; font-size: 11px; }
 
-        .budget-status-bar { margin-top: 2px; padding: 2px 4px; border-radius: 6px; font-size: 9.5px; font-weight: bold; text-align: center; }
-        .bg-ok { background: #e8f5e9; color: #2e7d32; }
-        .bg-warn { background: #e3f2fd; color: #1565c0; }
-        .bg-error { background: #ffebee; color: #c62828; }
+        .title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
 
-        .category-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 2px; max-height: 58px; overflow-y: auto; }
-        .cat-sum-item { background: #fff; padding: 1px 4px; border-radius: 4px; font-size: 8.5px; display: flex; justify-content: space-between; }
+        .date-input {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            outline: none;
+        }
 
-        .input-row { display: flex; gap: 4px; margin-bottom: 4px; }
-        .input-row input { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid #ffb6c1; font-size: 11px; }
+        /* 自訂分類容器 */
+        .category-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
 
-        .category-container { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 4px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .cat-btn { padding: 3px 7px; background: #fff; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 10.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .cat-btn.selected { background: #ffb6c1; color: #fff; font-weight: bold; }
-        .amount-display { margin: 3px 0; text-align: center; font-size: 10.5px; background: #fff; padding: 3px; border-radius: 4px; }
-        
-        .keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .key { background: #fff; padding: 8px 0; text-align: center; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-        .key:active { background: #ffebf0; }
-        
-        .split-key-container { display: flex; gap: 3px; }
-        .split-key { flex: 1; background: #fff; padding: 8px 0; text-align: center; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-        .split-key:active { background: #ffebf0; }
-
-        .submit-btn { 
-            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); 
-            color: white; 
-            font-size: 12px;
+        .cat-btn {
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            white-space: nowrap;
         }
 
-        .refresh-btn {
-            position: absolute;
-            top: 4px;
-            right: 6px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ffb6c1;
-            border-radius: 6px;
-            padding: 1px 5px;
-            font-size: 9px;
-            color: #ff1493;
-            cursor: pointer;
+        .cat-btn.active {
+            border-color: var(--primary);
+            background-color: #f0f7ff;
+            color: var(--primary);
+            font-weight: bold;
         }
 
-        .fixed-nav-bar { 
-            position: fixed !important; 
-            bottom: 0 !important; 
-            left: 0 !important; 
-            right: 0 !important;
-            width: 100% !important; 
-            padding-bottom: calc(env(safe-area-inset-bottom, 2px) + 2px) !important; 
-            padding-top: 3px !important;
-            padding-left: 8px !important;
-            padding-right: 8px !important;
-            background: #ffe4e1 !important; 
-            display: flex !important; 
-            justify-content: space-between !important; 
-            align-items: center !important; 
-            gap: 6px !important;
-            z-index: 999999 !important; 
+        /* 輸入區塊 */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
         }
 
-        .nav-link { 
-            text-decoration: none; 
-            color: #888; 
-            font-size: 12px; 
-            flex: 1; 
-            height: 36px;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-row label {
+            width: 50px;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .text-input {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .display-amount {
+            flex: 1;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: right;
+            padding: 4px 8px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
+            min-height: 40px;
+        }
+
+        /* 數字鍵盤 */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .key-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            background: #ffffff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            transition: all 0.2s ease;
+            padding: 14px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .nav-link.active { 
-            color: #ff1493; 
-            font-weight: bold; 
-            background: #fff0f5; 
-            border: 1px solid #ffb6c1;
+        .key-btn:active {
+            background: #e2e8f0;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:active {
+            background: var(--primary-hover);
+        }
+
+        /* 預算管理區 */
+        .budget-section {
+            margin-top: 8px;
+        }
+
+        .budget-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-sub);
+        }
+
+        .budget-grid {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .budget-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .budget-input {
+            width: 90px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 4px 6px;
+            text-align: right;
+        }
+
+        .budget-warning {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-shell">
-        <div class="glass-panel text-center">
-            <button class="refresh-btn" onclick="fetchCloudData(true)">🔄 刷新</button>
-            <div class="panel-header">
-                <span>🌸</span>
-                <input type="month" id="selected-month" class="month-select" onchange="renderMonthData()">
-                <span>收支概況</span>
-            </div>
-            
-            <div class="dashboard-grid">
-                <div class="dashboard-item">
-                    <div class="label-sm">該月累積花費</div>
-                    <div class="total-amount">NT$ <span id="month-total">0</span></div>
-                </div>
-                <div class="dashboard-item">
-                    <div class="label-sm">剩餘可用額度</div>
-                    <div class="rem-amount" id="rem-container">NT$ <span id="month-remaining">0</span></div>
-                </div>
-            </div>
-
-            <div style="font-size:9px; color:#888; text-align:left; margin-top:3px;">📊 該月類別明細：</div>
-            <div class="category-summary-grid" id="cat-summary-box">
-                <div style="grid-column: span 3; color:#999; font-size:8.5px;">載入中...</div>
-            </div>
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <div class="title">✨ 快速記帳</div>
+            <input type="date" id="tx-date" class="date-input">
         </div>
 
-        <div class="glass-panel">
-            <div class="sub-title">🎀 預算餘額分配</div>
-            <div class="budget-grid">
-                <div class="budget-item"><span class="text-pink">月薪</span><input type="number" id="bg-salary" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
-                <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
-                <div class="budget-item"><span class="text-green">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
-                <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
-                <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
-                <div class="budget-item"><span>餐費</span><input type="number" id="bg-food" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('food', this.value)"></div>
-                <div class="budget-item"><span>車票</span><input type="number" id="bg-ticket" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('ticket', this.value)"></div>
-                <div class="budget-item"><span>其他</span><input type="number" id="bg-others" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
-            </div>
-            
-            <div id="budget-status" class="budget-status-bar bg-ok">
-                ✅ 預算試算計算中...
-            </div>
-
-            <div class="daily-bar">
-                <span>📅 本月剩餘 <b id="rem-days" class="text-pink">0</b> 天，平均每日可用：</span>
-                <span class="daily-amount">NT$ <span id="daily-budget">0</span></span>
-            </div>
+        <!-- 已整合您的 16 個自訂分類 -->
+        <div class="category-container" id="cat-container">
+            <div class="cat-btn" onclick="selectCat(this, '主食')">🍱 主食</div>
+            <div class="cat-btn" onclick="selectCat(this, '點心')">🍰 點心</div>
+            <div class="cat-btn" onclick="selectCat(this, '飲料')">🥤 飲料</div>
+            <div class="cat-btn" onclick="selectCat(this, '必要開銷')">📦 必要開銷</div>
+            <div class="cat-btn" onclick="selectCat(this, '獅薩')">🦁 獅薩</div>
+            <div class="cat-btn" onclick="selectCat(this, '住宿')">🎀 住宿</div>
+            <div class="cat-btn" onclick="selectCat(this, '交通')">🚗 交通</div>
+            <div class="cat-btn" onclick="selectCat(this, '購物')">🛍️ 購物</div>
+            <div class="cat-btn" onclick="selectCat(this, '治裝')">👗 治裝</div>
+            <div class="cat-btn" onclick="selectCat(this, '電話及會員')">📱 電話會員</div>
+            <div class="cat-btn" onclick="selectCat(this, '醫療')">🏥 醫療</div>
+            <div class="cat-btn" onclick="selectCat(this, '保養美體')">💅 保養美體</div>
+            <div class="cat-btn" onclick="selectCat(this, '儲值及娛樂')">🎮 娛樂儲值</div>
+            <div class="cat-btn" onclick="selectCat(this, '狗勾')">🐶 狗勾</div>
+            <div class="cat-btn" onclick="selectCat(this, '贊助')">🎁 贊助</div>
+            <div class="cat-btn" onclick="selectCat(this, '其他')">✨ 其他</div>
         </div>
 
-        <div class="glass-panel main-panel">
+        <!-- 輸入欄位 -->
+        <div class="input-group">
             <div class="input-row">
-                <input type="date" id="tx-date">
-                <input type="text" id="tx-item" placeholder="項目內容 (選填)">
+                <label for="tx-item">項目</label>
+                <input type="text" id="tx-item" class="text-input" placeholder="說明（如：午餐）">
             </div>
-            
-            <div class="category-container" id="cat-container">
-                <div class="cat-btn" onclick="selectCat(this, '主食')">🍱 主食</div>
-                <div class="cat-btn" onclick="selectCat(this, '點心')">🍰 點心</div>
-                <div class="cat-btn" onclick="selectCat(this, '飲料')">🥤 飲料</div>
-                <div class="cat-btn" onclick="selectCat(this, '必要開銷')">📦 必要開銷</div>
-                <div class="cat-btn" onclick="selectCat(this, '獅薩')">🦁 獅薩</div>
-                <div class="cat-btn" onclick="selectCat(this, '住宿')">🎀 住宿</div>
-                <div class="cat-btn" onclick="selectCat(this, '交通')">🚗 交通</div>
-                <div class="cat-btn" onclick="selectCat(this, '購物')">🛍️ 購物</div>
-                <div class="cat-btn" onclick="selectCat(this, '治裝')">👗 治裝</div>
-                <div class="cat-btn" onclick="selectCat(this, '電話及會員')">📱 電話會員</div>
-                <div class="cat-btn" onclick="selectCat(this, '醫療')">🏥 醫療</div>
-                <div class="cat-btn" onclick="selectCat(this, '保養美體')">💅 保養美體</div>
-                <div class="cat-btn" onclick="selectCat(this, '儲值及娛樂')">🎮 娛樂儲值</div>
-                <div class="cat-btn" onclick="selectCat(this, '狗勾')">🐶 狗勾</div>
-                <div class="cat-btn" onclick="selectCat(this, '贊助')">🎁 贊助</div>
-                <div class="cat-btn" onclick="selectCat(this, '其他')">✨ 其他</div>
-            </div>
-
-            <div class="amount-display">
-                已選: <span id="selected-cat-text" class="text-pink">未選擇</span> | 
-                金額: <span class="text-pink">$<span id="tx-amount">0</span></span>
-            </div>
-            
-            <div class="keyboard">
-                <div class="key" onclick="pressKey('1')">1</div>
-                <div class="key" onclick="pressKey('2')">2</div>
-                <div class="key" onclick="pressKey('3')">3</div>
-                <div class="key" onclick="pressKey('4')">4</div>
-                <div class="key" onclick="pressKey('5')">5</div>
-                <div class="key" onclick="pressKey('6')">6</div>
-                <div class="key" onclick="pressKey('7')">7</div>
-                <div class="key" onclick="pressKey('8')">8</div>
-                <div class="key" onclick="pressKey('9')">9</div>
-                
-                <div class="split-key-container">
-                    <div class="split-key" style="color:#ff1493;" onclick="pressKey('-')">-</div>
-                    <div class="split-key" style="color:#cc0000;" onclick="pressKey('C')">⌫</div>
-                </div>
-                
-                <div class="key" onclick="pressKey('0')">0</div>
-                <div class="key submit-btn" id="btn-submit" onclick="submitRecord()">送出✨</div>
+            <div class="input-row">
+                <label>金額</label>
+                <div class="display-amount" id="display-amount">0</div>
             </div>
         </div>
+
+        <!-- 數字鍵盤 -->
+        <div class="keypad">
+            <div class="key-btn" onclick="appendNum('1')">1</div>
+            <div class="key-btn" onclick="appendNum('2')">2</div>
+            <div class="key-btn" onclick="appendNum('3')">3</div>
+            <div class="key-btn" onclick="appendNum('4')">4</div>
+            <div class="key-btn" onclick="appendNum('5')">5</div>
+            <div class="key-btn" onclick="appendNum('6')">6</div>
+            <div class="key-btn" onclick="appendNum('7')">7</div>
+            <div class="key-btn" onclick="appendNum('8')">8</div>
+            <div class="key-btn" onclick="appendNum('9')">9</div>
+            <div class="key-btn" onclick="clearNum()">C</div>
+            <div class="key-btn" onclick="appendNum('0')">0</div>
+            <div class="key-btn" onclick="backspace()">⌫</div>
+        </div>
+
+        <button class="submit-btn" id="btn-submit" onclick="submitRecord()">送出✨</button>
     </div>
 
-    <nav class="fixed-nav-bar">
-        <a href="index.html" class="nav-link active">記帳首頁</a>
-        <a href="memo.html" class="nav-link">備忘錄</a>
-        <a href="details.html" class="nav-link">明細歷史</a>
-    </nav>
+    <!-- 預算管理區（同步支援所有 16 個分類） -->
+    <div class="card budget-section">
+        <div class="budget-title">📊 類別預算設定 (月)</div>
+        <div class="budget-grid" id="budget-list">
+            <!-- JavaScript 會自動動態產生所有分類的預算輸入框 -->
+        </div>
+        <div class="budget-warning" id="budget-warning">⚠️ 注意：當前金額已超出設定預算！</div>
+    </div>
+</div>
 
-    <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec"; 
-        let currentAmount = "0";
-        let chosenCategory = "";
-        let currentMonthTotal = 0;
-        let globalRawRecords = [];
+<script>
+    // ⚠️ 請替換為您的 Google Apps Script Web App URL
+    const GAS_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
 
-        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'others'];
+    const CATEGORIES = [
+        '主食', '點心', '飲料', '必要開銷', 
+        '獅薩', '住宿', '交通', '購物', 
+        '治裝', '電話及會員', '醫療', '保養美體', 
+        '儲值及娛樂', '狗勾', '贊助', '其他'
+    ];
 
-        function triggerVibration(type = "light") {
-            try { 
-                if (window.navigator && window.navigator.vibrate) { 
-                    if (type === "light") window.navigator.vibrate(15); 
-                    else if (type === "success") window.navigator.vibrate([40, 40, 40]); 
-                } 
-            } catch (e) {}
+    let chosenCategory = "";
+    let currentAmount = "0";
+
+    // 初始化頁面
+    window.onload = function() {
+        document.getElementById('tx-date').valueAsDate = new Date();
+        renderBudgetInputs();
+        loadBudgets();
+    };
+
+    function triggerVibration(type) {
+        if ("vibrate" in navigator) {
+            if (type === "click") navigator.vibrate(15);
+            if (type === "success") navigator.vibrate([30, 50, 30]);
         }
+    }
 
-        function getLocalDateString(d = new Date()) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+    // 分類選擇函數 (與 HTML 中的 selectCat 對應)
+    function selectCat(el, cat) {
+        triggerVibration("click");
+        chosenCategory = cat;
+        document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+        el.classList.add('active');
+        checkBudgetBalance();
+    }
+
+    function appendNum(num) {
+        triggerVibration("click");
+        if (currentAmount === "0") {
+            currentAmount = num;
+        } else {
+            if (currentAmount.length < 8) currentAmount += num;
         }
+        updateDisplay();
+    }
 
-        window.addEventListener('load', () => {
-            const today = new Date();
-            document.getElementById('tx-date').value = getLocalDateString(today);
+    function clearNum() {
+        triggerVibration("click");
+        currentAmount = "0";
+        updateDisplay();
+    }
 
-            const yearMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            document.getElementById('selected-month').value = yearMonthStr;
-            
-            // 直接向雲端同步最新數據（不優先拿舊 LocalStorage）
-            fetchCloudData(false);
+    function backspace() {
+        triggerVibration("click");
+        if (currentAmount.length > 1) {
+            currentAmount = currentAmount.slice(0, -1);
+        } else {
+            currentAmount = "0";
+        }
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        document.getElementById('display-amount').innerText = currentAmount;
+        checkBudgetBalance();
+    }
+
+    // 動態渲染預算設定清單
+    function renderBudgetInputs() {
+        const listEl = document.getElementById('budget-list');
+        listEl.innerHTML = CATEGORIES.map(cat => `
+            <div class="budget-row">
+                <span>${cat}</span>
+                <input type="number" class="budget-input" id="budget-${cat}" onchange="updateBudget('${cat}', this.value)" placeholder="設定">
+            </div>
+        `).join('');
+    }
+
+    // 載入 LocalStorage 預算
+    function loadBudgets() {
+        CATEGORIES.forEach(cat => {
+            let saved = localStorage.getItem('budget_' + cat);
+            let input = document.getElementById('budget-' + cat);
+            if (saved !== null && input) {
+                input.value = saved;
+            }
         });
+    }
 
-        function getRemainingDaysInMonth(targetYearMonth) {
-            let now = new Date();
-            let [y, m] = targetYearMonth.split('-').map(Number);
-            
-            if (y !== now.getFullYear() || m !== (now.getMonth() + 1)) {
-                return 0;
-            }
+    // 更新預算並傳送至 GAS
+    function updateBudget(cat, val) {
+        let amt = Number(val) || 0;
+        localStorage.setItem('budget_' + cat, amt);
+        checkBudgetBalance();
 
-            let totalDays = new Date(y, m, 0).getDate();
-            let currentDay = now.getDate();
-            return (totalDays - currentDay) + 1;
-        }
+        if (GAS_URL.includes("YOUR_SCRIPT_ID")) return;
 
-        function checkBudgetBalance() {
-            let salary = Number(document.getElementById('bg-salary')?.value) || 0;
-            let spend = Number(document.getElementById('bg-spend')?.value) || 0;
-            let selectedYearMonth = document.getElementById('selected-month')?.value || '';
-            
-            let allocSum = fields.reduce((sum, f) => {
-                if (f === 'salary') return sum;
-                let elem = document.getElementById('bg-' + f);
-                return sum + (elem ? (Number(elem.value) || 0) : 0);
-            }, 0);
-
-            let remaining = spend - currentMonthTotal;
-            let remElem = document.getElementById('month-remaining');
-            let remContainer = document.getElementById('rem-container');
-            if (remElem) remElem.innerText = remaining.toLocaleString();
-            
-            if (remContainer) {
-                if (remaining < 0) remContainer.classList.add('rem-over');
-                else remContainer.classList.remove('rem-over');
-            }
-
-            let remDays = selectedYearMonth ? getRemainingDaysInMonth(selectedYearMonth) : 0;
-            let remDaysElem = document.getElementById('rem-days');
-            if (remDaysElem) remDaysElem.innerText = remDays;
-            
-            let dailyBudget = (remaining > 0 && remDays > 0) ? Math.floor(remaining / remDays) : 0;
-            let dailyElem = document.getElementById('daily-budget');
-            if (dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
-
-            let statusElem = document.getElementById('budget-status');
-            let diff = salary - allocSum;
-
-            if (statusElem) {
-                if (diff === 0 && salary > 0) {
-                    statusElem.className = "budget-status-bar bg-ok";
-                    statusElem.innerText = "✅ 預算分配完美平衡！(100% 已分配)";
-                } else if (diff > 0) {
-                    statusElem.className = "budget-status-bar bg-warn";
-                    statusElem.innerText = `💡 還有 NT$ ${diff.toLocaleString()} 未分配完畢`;
-                } else if (diff < 0) {
-                    statusElem.className = "budget-status-bar bg-error";
-                    statusElem.innerText = `⚠️ 預算爆了！超過月薪 NT$ ${Math.abs(diff).toLocaleString()}`;
-                } else {
-                    statusElem.className = "budget-status-bar bg-warn";
-                    statusElem.innerText = "💡 請輸入月薪與分配項目";
-                }
-            }
-        }
-
-        // 💡 修改後的 fetchCloudData (加上了 &t=${new Date().getTime()} 防快取)
-function fetchCloudData(isManual = false) {
-    if (isManual) triggerVibration("light");
-    
-    // 在網址後方加上時間戳記 &t=... 避免手機瀏覽器快取舊資料
-    const timestamp = new Date().getTime();
-    fetch(`${GAS_URL}?action=getData&t=${timestamp}`)
+        fetch(GAS_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+                action: "updateBudget",
+                category: cat,
+                amount: amt
+            })
+        })
         .then(res => res.json())
-        .then(data => {
-            if (data && data.records) {
-                globalRawRecords = data.records;
-            }
+        .then(data => console.log(`[預算同步] ${cat}: ${amt}`))
+        .catch(err => console.error("預算同步失敗:", err));
+    }
+
+    // 檢查預算超出狀態
+    function checkBudgetBalance() {
+        if (!chosenCategory) return;
+        let budget = Number(localStorage.getItem('budget_' + chosenCategory)) || 0;
+        let amt = Number(currentAmount);
+        let warningEl = document.getElementById('budget-warning');
+
+        if (budget > 0 && amt > budget) {
+            warningEl.style.display = "block";
+            warningEl.innerText = `⚠️ 警告：金額 $${amt} 已超出【${chosenCategory}】預算 ($${budget})`;
+        } else {
+            warningEl.style.display = "none";
+        }
+    }
+
+    // 送出資料至後端
+    function submitRecord() {
+        let finalAmt = Number(currentAmount);
+        if (!chosenCategory) {
+            alert("請先選擇分類！");
+            return;
+        }
+        if (isNaN(finalAmt) || finalAmt === 0) {
+            alert("請輸入有效金額！");
+            return;
+        }
+
+        if (GAS_URL.includes("YOUR_SCRIPT_ID")) {
+            alert("請將程式碼中的 GAS_URL 替換為您的 Web App 網址！");
+            return;
+        }
+
+        const btnSubmit = document.getElementById('btn-submit');
+        btnSubmit.style.pointerEvents = 'none';
+        btnSubmit.innerText = '傳送中...';
+
+        fetch(GAS_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+                date: document.getElementById('tx-date').value,
+                category: chosenCategory,
+                item: document.getElementById('tx-item').value || chosenCategory,
+                amount: finalAmt
+            })
+        })
+        .then(res => res.json())
+        .then(res => {
+            triggerVibration("success");
+            alert(res.message || "記錄成功！");
             
-            // 強制以雲端試算表最新資料為準，更新畫面與本地快取
-            if (data && data.budgets) {
-                fields.forEach(f => { 
-                    let cloudVal = (data.budgets[f] !== undefined && data.budgets[f] !== "") ? Number(data.budgets[f]) : 0;
-                    let elem = document.getElementById('bg-' + f);
-                    if (elem) {
-                        elem.value = cloudVal;
-                    }
-                    localStorage.setItem('budget_' + f, cloudVal);
-                });
-            }
-            
-            renderMonthData();
-            if (isManual) alert("同步成功囉！✨");
-        }).catch(err => {
-            if (isManual) alert("同步失敗，請檢查網路連線。");
+            // 清空金額與項目
+            currentAmount = "0";
+            document.getElementById('tx-item').value = "";
+            updateDisplay();
+
+            btnSubmit.style.pointerEvents = 'auto';
+            btnSubmit.innerText = '送出✨';
+        })
+        .catch(err => {
+            console.error(err);
+            alert("寫入失敗，請確認網路與 GAS 設定！");
+            btnSubmit.style.pointerEvents = 'auto';
+            btnSubmit.innerText = '送出✨';
         });
-}
-
-        function renderMonthData() {
-            const targetYearMonth = document.getElementById('selected-month').value;
-            if (!targetYearMonth) return;
-
-            let total = 0;
-            let catSummary = {};
-
-            globalRawRecords.forEach(r => {
-                if (r.date) {
-                    let dateStr = "";
-                    if (typeof r.date === 'string') {
-                        dateStr = r.date.split('T')[0].replace(/\//g, '-');
-                    } else {
-                        let d = new Date(r.date);
-                        dateStr = getLocalDateString(d);
-                    }
-
-                    if (dateStr.substring(0, 7) === targetYearMonth) {
-                        let amt = Number(r.amount);
-                        if (!isNaN(amt)) {
-                            total += amt;
-                            let cat = r.category || '未分類';
-                            catSummary[cat] = (catSummary[cat] || 0) + amt;
-                        }
-                    }
-                }
-            });
-
-            currentMonthTotal = total;
-            let mTotalElem = document.getElementById('month-total');
-            if (mTotalElem) mTotalElem.innerText = total.toLocaleString();
-
-            const catBox = document.getElementById('cat-summary-box');
-            if (Object.keys(catSummary).length === 0) {
-                catBox.innerHTML = `<div style="grid-column: span 3; color:#999; font-size:8.5px;">該月無記帳紀錄</div>`;
-            } else {
-                let html = '';
-                for (let cat in catSummary) {
-                    html += `<div class="cat-sum-item"><span>${cat}</span><b>$${catSummary[cat].toLocaleString()}</b></div>`;
-                }
-                catBox.innerHTML = html;
-            }
-
-            checkBudgetBalance();
-        }
-
-        function selectCat(element, cat) { 
-            triggerVibration("light"); 
-            chosenCategory = cat; 
-            document.getElementById('selected-cat-text').innerText = cat; 
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected')); 
-            element.classList.add('selected'); 
-        }
-
-        function pressKey(key) { 
-            triggerVibration("light"); 
-            if (key === 'C') { 
-                if (currentAmount.length > 1) {
-                    currentAmount = currentAmount.slice(0, -1);
-                    if (currentAmount === "-") currentAmount = "0";
-                } else {
-                    currentAmount = "0";
-                }
-            } else if (key === '-') {
-                if (currentAmount.startsWith('-')) {
-                    currentAmount = currentAmount.substring(1);
-                    if (currentAmount === "") currentAmount = "0";
-                } else {
-                    if (currentAmount === "0") currentAmount = "-";
-                    else currentAmount = "-" + currentAmount;
-                }
-            } else { 
-                if (currentAmount === "0") currentAmount = key;
-                else if (currentAmount === "-") currentAmount = "-" + key;
-                else currentAmount = currentAmount + key;
-            } 
-            
-            if (currentAmount === "-") {
-                document.getElementById('tx-amount').innerText = "-0";
-            } else {
-                let num = Number(currentAmount);
-                document.getElementById('tx-amount').innerText = isNaN(num) ? "0" : num.toLocaleString(); 
-            }
-        }
-        
-        function updateBudget(cat, val) { 
-            let amt = Number(val) || 0;
-            localStorage.setItem('budget_' + cat, amt); 
-            checkBudgetBalance();
-            
-            fetch(GAS_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "updateBudget",
-                    category: cat,
-                    amount: amt
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log(`[預算同步成功] ${cat}: ${amt}`);
-            })
-            .catch(err => {
-                console.error("預算同步失敗:", err);
-            });
-        }
-
-        function submitRecord() {
-            let finalAmt = Number(currentAmount);
-            if (!chosenCategory || isNaN(finalAmt) || finalAmt === 0) { 
-                alert("請填妥分類與金額！"); 
-                return; 
-            }
-            
-            const btnSubmit = document.getElementById('btn-submit');
-            btnSubmit.style.pointerEvents = 'none';
-            btnSubmit.innerText = '傳送中...';
-            
-            fetch(GAS_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ 
-                    date: document.getElementById('tx-date').value, 
-                    category: chosenCategory, 
-                    item: document.getElementById('tx-item').value, 
-                    amount: finalAmt 
-                }) 
-            })
-            .then(res => res.json())
-            .then(res => { 
-                triggerVibration("success"); 
-                alert(res.message || "記錄成功！"); 
-                location.reload(); 
-            })
-            .catch(err => {
-                alert("寫入失敗，請確認網路！");
-                btnSubmit.style.pointerEvents = 'auto';
-                btnSubmit.innerText = '送出✨';
-            });
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
