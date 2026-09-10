@@ -398,35 +398,37 @@
             }
         }
 
-        function fetchCloudData(isManual = false) {
-            if (isManual) triggerVibration("light");
+        // 💡 修改後的 fetchCloudData (加上了 &t=${new Date().getTime()} 防快取)
+function fetchCloudData(isManual = false) {
+    if (isManual) triggerVibration("light");
+    
+    // 在網址後方加上時間戳記 &t=... 避免手機瀏覽器快取舊資料
+    const timestamp = new Date().getTime();
+    fetch(`${GAS_URL}?action=getData&t=${timestamp}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.records) {
+                globalRawRecords = data.records;
+            }
             
-            // 加上 _t 時間戳記防瀏覽器快取
-            fetch(`${GAS_URL}?action=getData&_t=${new Date().getTime()}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.records) {
-                        globalRawRecords = data.records;
+            // 強制以雲端試算表最新資料為準，更新畫面與本地快取
+            if (data && data.budgets) {
+                fields.forEach(f => { 
+                    let cloudVal = (data.budgets[f] !== undefined && data.budgets[f] !== "") ? Number(data.budgets[f]) : 0;
+                    let elem = document.getElementById('bg-' + f);
+                    if (elem) {
+                        elem.value = cloudVal;
                     }
-                    
-                    // 強制以雲端試算表為準覆蓋畫面
-                    if (data && data.budgets) {
-                        fields.forEach(f => { 
-                            let cloudVal = (data.budgets[f] !== undefined && data.budgets[f] !== "") ? Number(data.budgets[f]) : 0;
-                            let elem = document.getElementById('bg-' + f);
-                            if (elem) {
-                                elem.value = cloudVal;
-                            }
-                            localStorage.setItem('budget_' + f, cloudVal);
-                        });
-                    }
-                    
-                    renderMonthData();
-                    if (isManual) alert("同步成功囉！✨");
-                }).catch(err => {
-                    if (isManual) alert("同步失敗，請檢查網路連線。");
+                    localStorage.setItem('budget_' + f, cloudVal);
                 });
-        }
+            }
+            
+            renderMonthData();
+            if (isManual) alert("同步成功囉！✨");
+        }).catch(err => {
+            if (isManual) alert("同步失敗，請檢查網路連線。");
+        });
+}
 
         function renderMonthData() {
             const targetYearMonth = document.getElementById('selected-month').value;
