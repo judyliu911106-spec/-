@@ -52,6 +52,7 @@
             background: #ff4d4d; color: white; border: none; border-radius: 6px;
             padding: 3px 6px; font-size: 10px; cursor: pointer;
         }
+        .delete-btn:disabled { background: #ccc; cursor: not-allowed; }
         .fixed-nav-bar { 
             position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
             width: 100% !important; padding-bottom: calc(env(safe-area-inset-bottom, 2px) + 2px) !important; 
@@ -110,7 +111,6 @@
         let rawRecords = [];
 
         window.addEventListener('load', () => {
-            // 預設選擇當前月份 (YYYY-MM)
             const now = new Date();
             const currentMonth = now.toISOString().substring(0, 7);
             document.getElementById('month-filter').value = currentMonth;
@@ -127,12 +127,15 @@
                     } else {
                         document.getElementById('record-container').innerHTML = `<div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">目前尚無紀錄喔！</div>`;
                     }
+                })
+                .catch(err => {
+                    document.getElementById('record-container').innerHTML = `<div style="text-align:center; color:red; margin-top:20px; font-size:12px;">資料載入失敗，請檢查網路連線</div>`;
                 });
         }
 
         function renderRecords() {
             let container = document.getElementById('record-container');
-            let selectedMonth = document.getElementById('month-filter').value; // YYYY-MM
+            let selectedMonth = document.getElementById('month-filter').value;
             let selectedCat = document.getElementById('category-filter').value;
             container.innerHTML = "";
 
@@ -145,16 +148,17 @@
 
             if (filtered.length > 0) {
                 filtered.slice().reverse().forEach(r => {
-                    let dateDisplay = r.date ? r.date.toString().substring(0,10) : '';
+                    let dateDisplay = r.date ? r.date.toString().substring(0, 10) : '';
+                    let itemText = r.item || '';
                     let itemHtml = `
                         <div class="record-item">
                             <div class="record-info">
-                                <div class="record-cat">${r.category || "未分類"} ${r.item ? '- ' + r.item : ''}</div>
+                                <div class="record-cat">${r.category || "未分類"} ${itemText ? '- ' + itemText : ''}</div>
                                 <div class="record-detail">${dateDisplay}</div>
                             </div>
                             <div class="right-area">
                                 <div class="record-amount">NT$ ${Number(r.amount).toLocaleString()}</div>
-                                <button class="delete-btn" onclick="deleteRecord('${dateDisplay}', '${r.category}', ${r.amount})">刪除</button>
+                                <button class="delete-btn" onclick="deleteRecord('${dateDisplay}', '${r.category || ''}', '${itemText}', ${r.amount}, this)">刪除</button>
                             </div>
                         </div>
                     `;
@@ -165,43 +169,49 @@
             }
         }
 
-        // 刪除紀錄函數
-function deleteRecord(recordObj, element) {
-    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+        function deleteRecord(date, category, item, amount, btnElement) {
+            if (!confirm(`確定要刪除這筆紀錄嗎？\n${date} ${category} $${amount}`)) return;
 
-    // 前端先禁用按鈕，防止重複點擊
-    if (element) element.style.pointerEvents = 'none';
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerText = "刪除中...";
+            }
 
-    fetch(GAS_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify({
-            action: "deleteRecord",
-            date: recordObj.date,
-            category: recordObj.category,
-            item: recordObj.item,
-            amount: recordObj.amount
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert("刪除成功！");
-            // 重新拉取雲端最新資料，避免本地與雲端不同步
-            fetchCloudData(false);
-        } else {
-            alert("刪除失敗：" + data.message);
-            if (element) element.style.pointerEvents = 'auto';
+            fetch(GAS_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
+                body: JSON.stringify({
+                    action: "deleteRecord",
+                    date: date,
+                    category: category,
+                    item: item,
+                    amount: amount
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("刪除成功！");
+                    loadData(); // 重新向 GAS 拉取最新列表
+                } else {
+                    alert("刪除失敗：" + (data.message || "未知錯誤"));
+                    if (btnElement) {
+                        btnElement.disabled = false;
+                        btnElement.innerText = "刪除";
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("刪除請求失敗:", err);
+                alert("網路請求失敗，請檢查 GAS 部署與網路！");
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerText = "刪除";
+                }
+            });
         }
-    })
-    .catch(err => {
-        console.error("刪除請求失敗:", err);
-        alert("網路錯誤，刪除失敗！");
-        if (element) element.style.pointerEvents = 'auto';
-    });
-}
     </script>
 </body>
 </html>
