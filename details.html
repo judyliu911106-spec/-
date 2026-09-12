@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>老公請查帳 - 明細歷史</title>
-    <link rel="stylesheet" href="style.css?v=10.0">
+    <link rel="stylesheet" href="style.css?v=13.0">
     <style>
         * { box-sizing: border-box; }
         html, body {
@@ -76,21 +76,26 @@
                 <div class="filter-group">
                     <!-- 📅 月份篩選 -->
                     <input type="month" id="month-filter" class="filter-select" onchange="renderRecords()">
-                    <!-- 🛒 項目篩選 -->
+                    <!-- 🛒 項目篩選 (已完全同步 index.html 類別並加入「休閒🎨」) -->
                     <select id="category-filter" class="filter-select" onchange="renderRecords()">
                         <option value="all">全部項目</option>
                         <option value="主食">🍱 主食</option>
-                        <option value="飲料">🥤 飲料</option>
                         <option value="點心">🍰 點心</option>
-                        <option value="日用品">🧻 日用品</option>
-                        <option value="美妝保養">💄 美妝保養</option>
-                        <option value="服飾鞋包">👗 服飾鞋包</option>
-                        <option value="大眾運輸">🚌 大眾運輸</option>
-                        <option value="加油保養">⛽ 加油保養</option>
-                        <option value="娛樂休閒">🎮 娛樂休閒</option>
-                        <option value="醫療保健">💊 醫療保健</option>
-                        <option value="固定開銷">🏠 固定開銷</option>
-                        <option value="其他費用">✨ 其他費用</option>
+                        <option value="飲料">🥤 飲料</option>
+                        <option value="必要開銷">📦 必要開銷</option>
+                        <option value="獅薩">🦁 獅薩</option>
+                        <option value="住宿">🎀 住宿</option>
+                        <option value="交通">🚗 交通</option>
+                        <option value="購物">🛍️ 購物</option>
+                        <option value="治裝">👗 治裝</option>
+                        <option value="電話及會員">📱 電話會員</option>
+                        <option value="醫療">🏥 醫療</option>
+                        <option value="保養美體">💅 保養美體</option>
+                        <option value="儲值及娛樂">🎮 娛樂儲值</option>
+                        <option value="狗勾">🐶 狗勾</option>
+                        <option value="贊助">🎁 贊助</option>
+                        <option value="休閒">🎨 休閒</option>
+                        <option value="其他">✨ 其他</option>
                     </select>
                 </div>
             </div>
@@ -110,9 +115,14 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbysT5brkEOmCNvDw_LWeesJlDLr-W_jH9DzK2itaa_6oeMdq27w0_rHvUfD_t0QTyW8/exec";
         let rawRecords = [];
 
+        function escapeQuotes(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
         window.addEventListener('load', () => {
             const now = new Date();
-            const currentMonth = now.toISOString().substring(0, 7);
+            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             document.getElementById('month-filter').value = currentMonth;
             loadData();
         });
@@ -140,25 +150,48 @@
             container.innerHTML = "";
 
             let filtered = rawRecords.filter(r => {
-                let rDateStr = r.date ? r.date.toString().substring(0, 7) : "";
-                let matchMonth = !selectedMonth || rDateStr === selectedMonth;
+                let dateStr = "";
+                if (r.date) {
+                    if (typeof r.date === 'string') {
+                        dateStr = r.date.split('T')[0].replace(/\//g, '-');
+                    } else {
+                        let d = new Date(r.date);
+                        dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    }
+                }
+                
+                let matchMonth = !selectedMonth || dateStr.substring(0, 7) === selectedMonth;
                 let matchCat = selectedCat === "all" || (r.category && r.category.includes(selectedCat));
                 return matchMonth && matchCat;
             });
 
             if (filtered.length > 0) {
                 filtered.slice().reverse().forEach(r => {
-                    let dateDisplay = r.date ? r.date.toString().substring(0, 10) : '';
+                    let dateDisplay = "";
+                    if (r.date) {
+                        if (typeof r.date === 'string') {
+                            dateDisplay = r.date.split('T')[0].replace(/\//g, '-');
+                        } else {
+                            let d = new Date(r.date);
+                            dateDisplay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                        }
+                    }
+                    
+                    let catText = r.category || '未分類';
                     let itemText = r.item || '';
+                    
+                    let safeCat = escapeQuotes(catText);
+                    let safeItem = escapeQuotes(itemText);
+
                     let itemHtml = `
                         <div class="record-item">
                             <div class="record-info">
-                                <div class="record-cat">${r.category || "未分類"} ${itemText ? '- ' + itemText : ''}</div>
+                                <div class="record-cat">${catText} ${itemText ? '- ' + itemText : ''}</div>
                                 <div class="record-detail">${dateDisplay}</div>
                             </div>
                             <div class="right-area">
                                 <div class="record-amount">NT$ ${Number(r.amount).toLocaleString()}</div>
-                                <button class="delete-btn" onclick="deleteRecord('${dateDisplay}', '${r.category || ''}', '${itemText}', ${r.amount}, this)">刪除</button>
+                                <button class="delete-btn" onclick="deleteRecord('${dateDisplay}', '${safeCat}', '${safeItem}', ${r.amount}, this)">刪除</button>
                             </div>
                         </div>
                     `;
@@ -187,14 +220,14 @@
                     date: date,
                     category: category,
                     item: item,
-                    amount: amount
+                    amount: Number(amount)
                 })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("刪除成功！");
-                    loadData(); // 重新向 GAS 拉取最新列表
+                    alert("刪除成功！✨");
+                    loadData();
                 } else {
                     alert("刪除失敗：" + (data.message || "未知錯誤"));
                     if (btnElement) {
