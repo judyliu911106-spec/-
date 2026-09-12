@@ -165,24 +165,43 @@
             }
         }
 
-        function deleteRecord(date, category, amount) {
-            if (confirm("確定要將這筆紀錄從雲端試算表中刪除嗎？")) {
-                fetch(GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "deleteRecord",
-                        date: date,
-                        category: category,
-                        amount: amount
-                    })
-                })
-                .then(res => res.json())
-                .then(res => {
-                    alert("刪除成功！試算表已同步更新。");
-                    loadData();
-                });
-            }
+        // 刪除紀錄函數
+function deleteRecord(recordObj, element) {
+    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+
+    // 前端先禁用按鈕，防止重複點擊
+    if (element) element.style.pointerEvents = 'none';
+
+    fetch(GAS_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+            action: "deleteRecord",
+            date: recordObj.date,
+            category: recordObj.category,
+            item: recordObj.item,
+            amount: recordObj.amount
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("刪除成功！");
+            // 重新拉取雲端最新資料，避免本地與雲端不同步
+            fetchCloudData(false);
+        } else {
+            alert("刪除失敗：" + data.message);
+            if (element) element.style.pointerEvents = 'auto';
         }
+    })
+    .catch(err => {
+        console.error("刪除請求失敗:", err);
+        alert("網路錯誤，刪除失敗！");
+        if (element) element.style.pointerEvents = 'auto';
+    });
+}
     </script>
 </body>
 </html>
