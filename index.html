@@ -228,6 +228,8 @@
                 <div class="budget-item"><span>旅遊</span><input type="number" id="bg-travel" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('travel', this.value)"></div>
                 <div class="budget-item"><span>餐費</span><input type="number" id="bg-food" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('food', this.value)"></div>
                 <div class="budget-item"><span>車票</span><input type="number" id="bg-ticket" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('ticket', this.value)"></div>
+                <div class="budget-item"><span>美容美髮</span><input type="number" id="bg-hair" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('hair', this.value)"></div>
+                <div class="budget-item"><span>電話費</span><input type="number" id="bg-phone" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('phone', this.value)"></div>
                 <div class="budget-item"><span>其他</span><input type="number" id="bg-others" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('others', this.value)"></div>
             </div>
             
@@ -307,7 +309,8 @@
         let currentMonthTotal = 0;
         let globalRawRecords = [];
 
-        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'others'];
+        // 包含美容美髮 (hair) 與電話費 (phone) 的預算欄位陣列
+        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'hair', 'phone', 'others'];
 
         function triggerVibration(type = "light") {
             try { 
@@ -511,7 +514,6 @@
             }
         }
         
-        // 修正：補上 text/plain header 以利正確傳送 JSON 並避免 CORS 阻擋
         function updateBudget(cat, val) { 
             let amt = Number(val) || 0;
             localStorage.setItem('budget_' + cat, amt); 
@@ -537,7 +539,6 @@
             });
         }
 
-        // 修正：補上 text/plain header 確保記帳紀錄順利寫入
         function submitRecord() {
             let finalAmt = Number(currentAmount);
             if (!chosenCategory || isNaN(finalAmt) || finalAmt === 0) { 
@@ -555,6 +556,7 @@
                     "Content-Type": "text/plain;charset=utf-8"
                 },
                 body: JSON.stringify({ 
+                    action: "addRecord",
                     date: document.getElementById('tx-date').value, 
                     category: chosenCategory, 
                     item: document.getElementById('tx-item').value, 
