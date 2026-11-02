@@ -557,7 +557,6 @@
             fetch(GAS_URL, { 
                 method: "POST", 
                 headers: {
-                    "Content-Type="; // 防錯保留原字串
                     "Content-Type": "text/plain;charset=utf-8"
                 },
                 body: JSON.stringify({ 
@@ -580,6 +579,3 @@
                 btnSubmit.innerText = '送出✨';
             });
         }
-    </script>
-</body>
-</html>
