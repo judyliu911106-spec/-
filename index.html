@@ -310,7 +310,7 @@
         let currentMonthTotal = 0;
         let globalRawRecords = [];
 
-        // 加上 'extra' 代表額外收入
+        // 包含額外收入 (extra) 的預算欄位清單
         const fields = ['salary', 'extra', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'hair', 'phone', 'others'];
 
         function triggerVibration(type = "light") {
@@ -355,11 +355,10 @@
         function checkBudgetBalance() {
             let salary = Number(document.getElementById('bg-salary')?.value) || 0;
             let extra = Number(document.getElementById('bg-extra')?.value) || 0;
-            let totalIncome = salary + extra; // 👈 總收入 = 月薪 + 額外收入
+            let totalIncome = salary + extra; // 總收入 = 月薪 + 額外收入
             let spend = Number(document.getElementById('bg-spend')?.value) || 0;
             let selectedYearMonth = document.getElementById('selected-month')?.value || '';
             
-            // 計算所有分配項目的總和（排除 salary 與 extra）
             let allocSum = fields.reduce((sum, f) => {
                 if (f === 'salary' || f === 'extra') return sum;
                 let elem = document.getElementById('bg-' + f);
@@ -385,7 +384,7 @@
             if (dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
 
             let statusElem = document.getElementById('budget-status');
-            let diff = totalIncome - allocSum; // 👈 用「總收入」去比對分配總額
+            let diff = totalIncome - allocSum;
 
             if (statusElem) {
                 if (diff === 0 && totalIncome > 0) {
@@ -579,3 +578,6 @@
                 btnSubmit.innerText = '送出✨';
             });
         }
+    </script>
+</body>
+</html>
