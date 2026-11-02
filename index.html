@@ -222,6 +222,7 @@
             <div class="sub-title">🎀 預算餘額分配</div>
             <div class="budget-grid">
                 <div class="budget-item"><span class="text-pink">月薪</span><input type="number" id="bg-salary" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('salary', this.value)"></div>
+                <div class="budget-item"><span class="text-pink">額外收入</span><input type="number" id="bg-extra" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('extra', this.value)"></div>
                 <div class="budget-item"><span>存錢</span><input type="number" id="bg-save" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('save', this.value)"></div>
                 <div class="budget-item"><span class="text-green">可花費</span><input type="number" id="bg-spend" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('spend', this.value)"></div>
                 <div class="budget-item"><span>美妝</span><input type="number" id="bg-makeup" placeholder="0" oninput="checkBudgetBalance()" onchange="updateBudget('makeup', this.value)"></div>
@@ -309,8 +310,8 @@
         let currentMonthTotal = 0;
         let globalRawRecords = [];
 
-        // 包含美容美髮 (hair) 與電話費 (phone) 的預算欄位陣列
-        const fields = ['salary', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'hair', 'phone', 'others'];
+        // 加上 'extra' 代表額外收入
+        const fields = ['salary', 'extra', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'hair', 'phone', 'others'];
 
         function triggerVibration(type = "light") {
             try { 
@@ -353,11 +354,14 @@
 
         function checkBudgetBalance() {
             let salary = Number(document.getElementById('bg-salary')?.value) || 0;
+            let extra = Number(document.getElementById('bg-extra')?.value) || 0;
+            let totalIncome = salary + extra; // 👈 總收入 = 月薪 + 額外收入
             let spend = Number(document.getElementById('bg-spend')?.value) || 0;
             let selectedYearMonth = document.getElementById('selected-month')?.value || '';
             
+            // 計算所有分配項目的總和（排除 salary 與 extra）
             let allocSum = fields.reduce((sum, f) => {
-                if (f === 'salary') return sum;
+                if (f === 'salary' || f === 'extra') return sum;
                 let elem = document.getElementById('bg-' + f);
                 return sum + (elem ? (Number(elem.value) || 0) : 0);
             }, 0);
@@ -381,10 +385,10 @@
             if (dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
 
             let statusElem = document.getElementById('budget-status');
-            let diff = salary - allocSum;
+            let diff = totalIncome - allocSum; // 👈 用「總收入」去比對分配總額
 
             if (statusElem) {
-                if (diff === 0 && salary > 0) {
+                if (diff === 0 && totalIncome > 0) {
                     statusElem.className = "budget-status-bar bg-ok";
                     statusElem.innerText = "✅ 預算分配完美平衡！(100% 已分配)";
                 } else if (diff > 0) {
@@ -392,10 +396,10 @@
                     statusElem.innerText = `💡 還有 NT$ ${diff.toLocaleString()} 未分配完畢`;
                 } else if (diff < 0) {
                     statusElem.className = "budget-status-bar bg-error";
-                    statusElem.innerText = `⚠️ 預算爆了！超過月薪 NT$ ${Math.abs(diff).toLocaleString()}`;
+                    statusElem.innerText = `⚠️ 預算爆了！超過總收入 NT$ ${Math.abs(diff).toLocaleString()}`;
                 } else {
                     statusElem.className = "budget-status-bar bg-warn";
-                    statusElem.innerText = "💡 請輸入月薪與分配項目";
+                    statusElem.innerText = "💡 請輸入收入與分配項目";
                 }
             }
         }
@@ -553,6 +557,7 @@
             fetch(GAS_URL, { 
                 method: "POST", 
                 headers: {
+                    "Content-Type="; // 防錯保留原字串
                     "Content-Type": "text/plain;charset=utf-8"
                 },
                 body: JSON.stringify({ 
