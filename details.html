@@ -28,7 +28,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             gap: 4px;
         }
         .title { font-size: 13px; font-weight: bold; color: #444; margin: 0; white-space: nowrap; }
@@ -37,6 +37,26 @@
             padding: 4px 6px; border-radius: 8px; border: 1px solid #ffb6c1;
             background: #ffffff; font-size: 11px; color: #333; outline: none;
         }
+        
+        /* 📊 篩選總計看板樣式 */
+        .summary-banner {
+            background: #fff0f5;
+            border: 1px solid #ffb6c1;
+            border-radius: 10px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #444;
+            flex-shrink: 0;
+        }
+        .summary-banner b {
+            color: #ff1493;
+            font-size: 12px;
+        }
+
         .record-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
         .record-item {
             background: #ffffff; padding: 8px 10px; border-radius: 8px;
@@ -76,7 +96,7 @@
                 <div class="filter-group">
                     <!-- 📅 月份篩選 -->
                     <input type="month" id="month-filter" class="filter-select" onchange="renderRecords()">
-                    <!-- 🛒 項目篩選 (已完全同步 index.html 類別並加入「休閒🎨」) -->
+                    <!-- 🛒 項目篩選 -->
                     <select id="category-filter" class="filter-select" onchange="renderRecords()">
                         <option value="all">全部項目</option>
                         <option value="主食">🍱 主食</option>
@@ -99,6 +119,13 @@
                     </select>
                 </div>
             </div>
+
+            <!-- 📊 即時篩選總計看板 -->
+            <div class="summary-banner" id="summary-banner">
+                <span>符合條件：<b id="filter-count">0</b> 筆</span>
+                <span>總計金額：<b id="filter-total">NT$ 0</b></span>
+            </div>
+
             <div class="record-list" id="record-container">
                 <div style="text-align:center; color:#888; margin-top:20px; font-size:12px;">載入中...</div>
             </div>
@@ -164,6 +191,17 @@
                 let matchCat = selectedCat === "all" || (r.category && r.category.includes(selectedCat));
                 return matchMonth && matchCat;
             });
+
+            // 計算篩選後的總金額與筆數
+            let totalSum = 0;
+            filtered.forEach(r => {
+                let amt = Number(r.amount);
+                if (!isNaN(amt)) totalSum += amt;
+            });
+
+            // 更新畫面上方總計看板
+            document.getElementById('filter-count').innerText = filtered.length;
+            document.getElementById('filter-total').innerText = `NT$ ${totalSum.toLocaleString()}`;
 
             if (filtered.length > 0) {
                 filtered.slice().reverse().forEach(r => {
