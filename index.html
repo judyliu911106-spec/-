@@ -310,7 +310,6 @@
         let currentMonthTotal = 0;
         let globalRawRecords = [];
 
-        // 包含額外收入 (extra) 的預算欄位清單
         const fields = ['salary', 'extra', 'save', 'spend', 'makeup', 'travel', 'food', 'ticket', 'hair', 'phone', 'others'];
 
         function triggerVibration(type = "light") {
@@ -355,7 +354,7 @@
         function checkBudgetBalance() {
             let salary = Number(document.getElementById('bg-salary')?.value) || 0;
             let extra = Number(document.getElementById('bg-extra')?.value) || 0;
-            let totalIncome = salary + extra; // 總收入 = 月薪 + 額外收入
+            let totalIncome = salary + extra; 
             let spend = Number(document.getElementById('bg-spend')?.value) || 0;
             let selectedYearMonth = document.getElementById('selected-month')?.value || '';
             
@@ -365,7 +364,10 @@
                 return sum + (elem ? (Number(elem.value) || 0) : 0);
             }, 0);
 
-            let remaining = spend - currentMonthTotal;
+            // 💡 核心修改：將「可花費」加上「額外收入」，再減去「當月累積花費」作為剩餘可用額度
+            let totalAvailableSpend = spend + extra;
+            let remaining = totalAvailableSpend - currentMonthTotal;
+            
             let remElem = document.getElementById('month-remaining');
             let remContainer = document.getElementById('rem-container');
             if (remElem) remElem.innerText = remaining.toLocaleString();
@@ -379,6 +381,7 @@
             let remDaysElem = document.getElementById('rem-days');
             if (remDaysElem) remDaysElem.innerText = remDays;
             
+            // 每日可用額度也同步依據加了額外收入後的剩餘額度來均分
             let dailyBudget = (remaining > 0 && remDays > 0) ? Math.floor(remaining / remDays) : 0;
             let dailyElem = document.getElementById('daily-budget');
             if (dailyElem) dailyElem.innerText = dailyBudget.toLocaleString();
